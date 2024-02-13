@@ -1,4 +1,4 @@
-package com.ahugenb.tt
+package com.ahugenb.tt.home
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -15,9 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.ahugenb.tt.R
 import com.ahugenb.tt.ui.theme.TennisTimeTheme
+import dagger.hilt.android.AndroidEntryPoint
 
-class MainActivity : ComponentActivity() {
+@AndroidEntryPoint
+class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
