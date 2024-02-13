@@ -4,12 +4,13 @@ data class Match(
     val id: String,
     val homePlayer: String,
     val awayPlayer: String,
-    val currentSet: String,
-    val firstToServe: Int,
+    val currentSet: String, //todo convert to Int
+    val isHomeServing: Boolean, //todo calculate, consider doubles, tiebreaks, etc
     val homeScore: String,
     val awayScore: String,
-    val setsHomePlayer: Int,
-    val setsAwayPlayer: Int,
+    val setsHomePlayer: List<Int>,
+    val setsAwayPlayer: List<Int>,
+    val round: String,
     val tournament: String,
     val surface: String
 )

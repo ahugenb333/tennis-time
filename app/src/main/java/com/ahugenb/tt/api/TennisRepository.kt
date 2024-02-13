@@ -2,23 +2,28 @@ package com.ahugenb.tt.api
 
 import android.util.Log
 import com.ahugenb.tt.match.domain.Match
-import kotlinx.coroutines.flow.flow
+import com.ahugenb.tt.match.response.toDomainMatch
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 
 
 class TennisRepository(private val apiService: TennisApiService) {
 
     fun getMatches(): Flow<List<Match>> = flow {
-        try {
-            val matches = apiService.getMatches()
-            if (matches.isNotEmpty()) {
-                emit(ApiResponse.Success(matches))
-            } else {
-                emit(ApiResponse.None)
+        val response = apiService.getMatches()
+        when (response) {
+            is ApiResponse.Success -> {
+                emit(response.data.matchResponse.map { it.toDomainMatch() })
             }
-        } catch (e: Exception) {
-            Log.e("TennisRepository::getMatches", e.toString())
-            emit(ApiResponse.Error(e))
+            is ApiResponse.Error -> {
+                //todo show error to user
+                emit(emptyList())
+            }
+            ApiResponse.None -> emit(emptyList())
         }
+    }.catch { e ->
+        Log.e("TennisRepository::getMatches", e.toString())
+        emit(emptyList())
     }
 }

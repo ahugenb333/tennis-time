@@ -1,13 +1,14 @@
 package com.ahugenb.tt.match.response
 
+import com.ahugenb.tt.match.domain.Match
 import com.google.gson.annotations.SerializedName
 
-data class MatchResponse(
+data class MatchResponseList(
     @SerializedName("matches")
-    val matches: List<Match>
+    val matchResponse: List<MatchResponse>
 )
 
-data class Match(
+data class MatchResponse(
     @SerializedName("Away Player")
     val awayPlayer: String,
     @SerializedName("Current set")
@@ -61,3 +62,42 @@ data class Match(
     @SerializedName("Tournament")
     val tournament: String
 )
+
+fun MatchResponse.toDomainMatch(): Match {
+    val setsHomePlayer = listOf(
+        set1Player1,
+        set2Player1,
+        set3Player1,
+        set4Player1,
+        set5Player1
+    ).filter {
+        it != "None"
+    }.map {
+        it.toInt()
+    }
+    val setsAwayPlayer = listOf(
+        set1Player2,
+        set2Player2,
+        set3Player2,
+        set4Player2,
+        set5Player2
+    ).filter {
+        it != "None"
+    }.map {
+        it.toInt()
+    }
+    return Match(
+        id = id,
+        homePlayer = homePlayer,
+        awayPlayer = awayPlayer,
+        currentSet = currentSet,
+        isHomeServing = true,
+        homeScore = player1Score,
+        awayScore = player2Score,
+        setsHomePlayer = setsHomePlayer,
+        setsAwayPlayer = setsAwayPlayer,
+        round = round,
+        tournament = tournament,
+        surface = surface
+    )
+}
