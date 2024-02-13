@@ -11,5 +11,5 @@ interface TennisApiService {
         "X-RapidAPI-Host: ultimate-tennis1.p.rapidapi.com"
     )
     @GET("live_scores")
-    suspend fun getMatches(): ApiResponse<MatchResponseList>
+    suspend fun getLiveScores(): MatchResponseList
 }

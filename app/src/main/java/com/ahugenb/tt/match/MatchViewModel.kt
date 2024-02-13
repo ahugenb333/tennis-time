@@ -36,7 +36,7 @@ class MatchViewModel @Inject constructor(
     private fun fetchMatches() {
         _matchesState.value = MatchListUIState.Loading
         viewModelScope.launch {
-            repository.getMatches()
+            repository.fetchMatches()
                 .flowOn(Dispatchers.IO)
                 .catch { e ->
                     Log.e("MatchesViewModel::fetchMatches", e.toString())
