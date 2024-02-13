@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ahugenb.tt.R
+import com.ahugenb.tt.match.view.MatchesScreen
 import com.ahugenb.tt.ui.theme.TennisTimeTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -55,7 +56,7 @@ fun TennisTimeAppScreen(
             when (currentScreen) {
                 Screen.HIGHLIGHTED_PLAYER -> Text(stringResource(R.string.tab_highlighted_player))
                 Screen.TOURNAMENTS -> Text(stringResource(R.string.tab_tournaments))
-                Screen.LIVE_MATCHES -> Text(stringResource(R.string.tab_live_matches))
+                Screen.LIVE_MATCHES -> MatchesScreen()
                 Screen.ATP_RANKINGS -> Text(stringResource(R.string.tab_atp_rankings))
                 Screen.WTA_RANKINGS -> Text(stringResource(R.string.tab_wta_rankings))
             }
