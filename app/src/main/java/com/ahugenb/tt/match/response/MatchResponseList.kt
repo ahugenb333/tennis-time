@@ -72,8 +72,6 @@ fun MatchResponse.toDomainMatch(): Match {
         set5Player1
     ).filter {
         it != "None"
-    }.map {
-        it.toInt()
     }
     val setsAwayPlayer = listOf(
         set1Player2,
@@ -83,8 +81,6 @@ fun MatchResponse.toDomainMatch(): Match {
         set5Player2
     ).filter {
         it != "None"
-    }.map {
-        it.toInt()
     }
     return Match(
         id = id,

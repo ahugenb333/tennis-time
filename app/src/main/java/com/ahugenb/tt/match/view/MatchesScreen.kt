@@ -78,6 +78,6 @@ fun MatchItem(match: Match) {
 }
 
 @Composable
-fun formatSets(sets: List<Int>): String {
+fun formatSets(sets: List<String>): String {
     return sets.joinToString(separator = " ")
 }

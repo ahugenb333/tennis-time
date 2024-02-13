@@ -6,8 +6,7 @@ import retrofit2.http.Headers
 
 interface TennisApiService {
     @Headers(
-        //todo refresh api key and hide when switching from free tier
-        "X-RapidAPI-Key: 21ba053232msh9a56089f81cc9adp1cf4edjsn6027b2418943",
+        "X-RapidAPI-Key:API_KEY",
         "X-RapidAPI-Host: ultimate-tennis1.p.rapidapi.com"
     )
     @GET("live_scores")

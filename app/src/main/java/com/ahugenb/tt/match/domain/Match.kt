@@ -8,8 +8,8 @@ data class Match(
     val isHomeServing: Boolean, //todo calculate, consider doubles, tiebreaks, etc
     val homeScore: String,
     val awayScore: String,
-    val setsHomePlayer: List<Int>,
-    val setsAwayPlayer: List<Int>,
+    val setsHomePlayer: List<String>,
+    val setsAwayPlayer: List<String>,
     val round: String,
     val tournament: String,
     val surface: String
