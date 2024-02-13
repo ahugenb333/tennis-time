@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Tennis Time</string>
+    <string name="tab_highlighted_player">Highlighted Player</string>
+    <string name="tab_tournaments">Tournaments</string>
+    <string name="tab_live_matches">Live Matches</string>
+    <string name="tab_atp_rankings">ATP Rankings</string>
+    <string name="tab_wta_rankings">WTA Rankings</string>
+</resources>
