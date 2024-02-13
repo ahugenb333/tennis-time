@@ -3,7 +3,7 @@ package com.ahugenb.tt.match.response
 import com.ahugenb.tt.match.domain.Match
 import com.google.gson.annotations.SerializedName
 
-data class MatchResponseList(
+data class MatchResponseWrapper(
     @SerializedName("matches")
     val matchResponse: List<MatchResponse>
 )

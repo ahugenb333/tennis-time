@@ -16,7 +16,7 @@ class TennisRepository(private val apiService: TennisApiService) {
             }
             emit(response)
         } catch(e: Exception ) {
-            Log.e("TennisRepository::getMatches", e.toString())
+            Log.e("TennisRepository::fetchMatches", e.toString())
             emit(emptyList())
         }
     }
