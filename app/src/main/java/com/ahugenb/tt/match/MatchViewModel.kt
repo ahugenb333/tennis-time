@@ -33,7 +33,7 @@ class MatchViewModel @Inject constructor(
         fetchMatches()
     }
 
-    private fun fetchMatches() {
+    fun fetchMatches() {
         _matchesState.value = MatchListUIState.Loading
         viewModelScope.launch {
             repository.fetchMatches()
