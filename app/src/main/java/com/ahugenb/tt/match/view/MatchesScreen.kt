@@ -27,6 +27,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ahugenb.tt.match.MatchListUIState
 import com.ahugenb.tt.match.MatchViewModel
 import com.ahugenb.tt.match.domain.Match
+import com.ahugenb.tt.match.domain.ServingState
+import com.ahugenb.tt.match.domain.SetScore
 
 @Composable
 fun MatchesScreen(viewModel: MatchViewModel = hiltViewModel()) {
@@ -85,19 +87,32 @@ fun MatchItem(match: Match) {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "${match.homePlayer} vs ${match.awayPlayer}")
+            Text(text = "${match.homePlayer} vs ${match.awayPlayer}")
+            Text(text = "Serving: " +
+                    when (match.servingState) {
+                        ServingState.HOME_IS_SERVING -> match.homePlayer
+                        ServingState.AWAY_IS_SERVING -> match.awayPlayer
+                        ServingState.NONE -> "Coin Flip"
+                    })
             Text(
                 text = "Surface: ${match.surface}")
             Text(
                 text = "Current Set: ${match.currentSet}, " +
                         "Scores: ${match.homeScore} - ${match.awayScore}",)
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Sets: ${formatSets(match.setsHomePlayer)} vs ${formatSets(match.setsAwayPlayer)}",)
+            Text(text = "Sets: ${formatHomeSets(match.sets)} vs ${formatAwaySets(match.sets)}",)
         }
     }
 }
 
-fun formatSets(sets: List<String>): String {
-    return sets.joinToString(separator = " ")
+private fun formatHomeSets(sets: List<SetScore>): String {
+    return sets.joinToString {
+        it.gamesHomePlayer.toString()
+    }
+}
+
+private fun formatAwaySets(sets: List<SetScore>): String {
+    return sets.joinToString {
+        it.gamesAwayPlayer.toString()
+    }
 }

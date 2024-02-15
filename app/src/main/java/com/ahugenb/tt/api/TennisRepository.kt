@@ -1,8 +1,8 @@
 package com.ahugenb.tt.api
 
 import android.util.Log
+import com.ahugenb.tt.match.MatchUtils.Companion.toDomainMatch
 import com.ahugenb.tt.match.domain.Match
-import com.ahugenb.tt.match.response.toDomainMatch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
