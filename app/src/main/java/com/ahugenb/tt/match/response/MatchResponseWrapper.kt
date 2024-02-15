@@ -13,7 +13,7 @@ data class MatchResponse(
     @SerializedName("Current set")
     val currentSet: String,
     @SerializedName("First to Serve")
-    val firstToServe: String,
+    val firstToServe: Int?,
     @SerializedName("Home Player")
     val homePlayer: String,
     @SerializedName("ID")

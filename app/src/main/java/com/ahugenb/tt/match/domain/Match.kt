@@ -17,7 +17,8 @@ data class SetScore(
     val gamesHomePlayer: Int,
     val gamesAwayPlayer: Int,
     val wentToTieBreak: Boolean,
-    val tieBreakLoserScore: Int? = null // null if no tiebreak or if not the losing player's score
+    val tieBreakLoserScore: Int?,
+    val totalTieBreakPoints: Int?
 )
 
 enum class ServingState {

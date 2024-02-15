@@ -1,6 +1,5 @@
 package com.ahugenb.tt.match
 
-import androidx.annotation.VisibleForTesting
 import com.ahugenb.tt.match.domain.Match
 import com.ahugenb.tt.match.domain.ServingState
 import com.ahugenb.tt.match.domain.SetScore
@@ -9,36 +8,21 @@ import com.ahugenb.tt.match.response.MatchResponse
 class MatchUtils {
     companion object {
         fun MatchResponse.toDomainMatch(): Match {
+            // Parse set scores and handle tiebreak logic within each set
             val sets = listOf(
-                set1Player1 to set1Player2,
-                set2Player1 to set2Player2,
-                set3Player1 to set3Player2,
-                set4Player1 to set4Player2,
-                set5Player1 to set5Player2
-            ).mapNotNull { (homeScore, awayScore) ->
-                if (homeScore != "None" && awayScore != "None") {
-                    val wentToTieBreak = homeScore.contains("(") || awayScore.contains("(")
-                    val homeGames = homeScore.filter { it.isDigit() }.toIntOrNull() ?: 0
-                    val awayGames = awayScore.filter { it.isDigit() }.toIntOrNull() ?: 0
+                parseSetScores(set1Player1, set1Player2),
+                parseSetScores(set2Player1, set2Player2),
+                parseSetScores(set3Player1, set3Player2),
+                parseSetScores(set4Player1, set4Player2),
+                parseSetScores(set5Player1, set5Player2)
+            ).filterNot { it.gamesHomePlayer == 0 && it.gamesAwayPlayer == 0 }
 
-                    val tieBreakLoserScore = try {
-                        if (wentToTieBreak) {
-                            val pattern = "\\((\\d+)\\)".toRegex()
-                            if (homeGames > awayGames) {
-                                pattern.find(awayScore)?.groupValues?.get(1)?.toInt()
-                            } else {
-                                pattern.find(homeScore)?.groupValues?.get(1)?.toInt()
-                            }
-                        } else null
-                    } catch (e: Exception) {
-                        null
-                    }
 
-                    SetScore(homeGames, awayGames, wentToTieBreak, tieBreakLoserScore)
-                } else null
-            }
+            // Determine the current set number
+            val currentSetInt = currentSet.toIntOrNull() ?: 0
 
-            val currentSetInt = currentSet.toIntOrNull() ?: 1
+            // Determine serving state
+            val servingState = getServingState(sets, firstToServe, currentSetInt)
 
             return Match(
                 id = id,
@@ -46,7 +30,7 @@ class MatchUtils {
                 awayPlayer = awayPlayer,
                 sets = sets,
                 currentSet = currentSetInt,
-                servingState = getServingState(sets, firstToServe, currentSetInt, player1Score, player2Score),
+                servingState = servingState,
                 homeScore = player1Score,
                 awayScore = player2Score,
                 round = round,
@@ -55,35 +39,64 @@ class MatchUtils {
             )
         }
 
-        @VisibleForTesting
+        private fun parseSetScores(homeScoreStr: String, awayScoreStr: String): SetScore {
+            val wentToTieBreak = homeScoreStr.contains("(") || awayScoreStr.contains("(")
+
+            val homeGames = homeScoreStr.filter { it.isDigit() }.toIntOrNull() ?: 0
+            val awayGames = awayScoreStr.filter { it.isDigit() }.toIntOrNull() ?: 0
+
+            var tieBreakLoserScore: Int? = null
+            var totalTiebreakPoints: Int? = null
+
+            if (wentToTieBreak) {
+                val pattern = "\\((\\d+)\\)".toRegex()
+                val homeTieBreakScore = pattern.find(homeScoreStr)?.groupValues?.getOrNull(1)?.toIntOrNull()
+                val awayTieBreakScore = pattern.find(awayScoreStr)?.groupValues?.getOrNull(1)?.toIntOrNull()
+
+                // Assuming the player with the higher game score wins the tiebreak
+                tieBreakLoserScore = if (homeGames > awayGames) awayTieBreakScore else homeTieBreakScore
+                totalTiebreakPoints = homeTieBreakScore?.plus(awayTieBreakScore ?: 0)
+            }
+
+            return SetScore(
+                gamesHomePlayer = homeGames,
+                gamesAwayPlayer = awayGames,
+                wentToTieBreak = wentToTieBreak,
+                tieBreakLoserScore = tieBreakLoserScore,
+                totalTieBreakPoints = totalTiebreakPoints
+            )
+        }
         private fun getServingState(
             sets: List<SetScore>,
-            firstToServe: String,
-            currentSet: Int,
-            player1Score: String,
-            player2Score: String
+            firstToServe: Int?,
+            currentSet: Int
         ): ServingState {
-            val parsedFirstToServe = firstToServe.toIntOrNull() ?: return ServingState.NONE
-            val totalGamesPlayed =
-                sets.sumOf { it.gamesHomePlayer + it.gamesAwayPlayer } +
-                        calculateScoreValue(player1Score) +
-                        calculateScoreValue(player2Score)
-            val isTieBreak = sets.getOrNull(currentSet - 1)?.wentToTieBreak ?: false
-            return if (isTieBreak) {
-                // Tiebreak serving rule (simplified)
-                if ((totalGamesPlayed + parsedFirstToServe) % 2 == 0) ServingState.HOME_IS_SERVING else ServingState.AWAY_IS_SERVING
-            } else {
-                // Regular serving rule
-                if ((totalGamesPlayed + parsedFirstToServe) % 2 == 0) ServingState.HOME_IS_SERVING else ServingState.AWAY_IS_SERVING
-            }
-        }
 
-        private fun calculateScoreValue(score: String): Int {
-            return if (score == "A") {
-                1 // Treat advantage as one point
-            } else {
-                score.toIntOrNull() ?: 0
+            if (firstToServe == null) return ServingState.NONE
+
+            val currentSetIndex = currentSet - 1
+            val currentSetScore = sets.getOrNull(currentSetIndex)
+
+            // Handle tiebreak logic
+            if (currentSetScore?.wentToTieBreak == true) {
+                val tiebreakPointsPlayed = currentSetScore.totalTieBreakPoints ?: 0 // Use tiebreak points
+
+                // Determine initial server in the tiebreak (based on who served first in the regular set)
+                val initialServerInTiebreak =
+                    if (sets.take(currentSet).sumOf { it.gamesHomePlayer + it.gamesAwayPlayer } % 2 == 0) {
+                        firstToServe
+                    } else {
+                        3 - firstToServe
+                    }
+
+                val isHomeServing = ((tiebreakPointsPlayed + initialServerInTiebreak) % 4) in 0..1
+                return if (isHomeServing) ServingState.HOME_IS_SERVING else ServingState.AWAY_IS_SERVING
             }
+
+            // Regular game serving logic
+            val gamesInCurrentSet = sets.take(currentSet).sumOf { it.gamesHomePlayer + it.gamesAwayPlayer }
+            val isHomeServing = (gamesInCurrentSet + firstToServe) % 2 == 1
+            return if (isHomeServing) ServingState.HOME_IS_SERVING else ServingState.AWAY_IS_SERVING
         }
     }
 }
