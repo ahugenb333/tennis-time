@@ -9,31 +9,35 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.ahugenb.tt.R
+import com.ahugenb.tt.home.NavRoutes.HIGHLIGHTED_PLAYER
+import com.ahugenb.tt.home.NavRoutes.ITEM_ID
+import com.ahugenb.tt.home.NavRoutes.MATCH_DETAILS
+import com.ahugenb.tt.home.NavRoutes.MATCH_LIST
+import com.ahugenb.tt.home.NavRoutes.TOURNAMENTS
+import com.ahugenb.tt.home.NavRoutes.getDetailsArgumentRoute
 import com.ahugenb.tt.match.detail.screen.MatchDetailScreen
-import com.ahugenb.tt.match.list.screen.MatchAppRoutes
 import com.ahugenb.tt.match.list.screen.MatchesScreen
 
 
 @Composable
 fun HomeNavHost(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = MatchAppRoutes.SCREEN_MATCH_LIST) {
-        composable(HomeNavRoutes.HIGHLIGHTED_PLAYER) { Text(stringResource(R.string.tab_highlighted_player)) }
-        composable(HomeNavRoutes.TOURNAMENTS) { Text(stringResource(R.string.tab_tournaments)) }
-        composable(MatchAppRoutes.SCREEN_MATCH_LIST) {
+    NavHost(navController = navController, startDestination = MATCH_LIST) {
+        composable(HIGHLIGHTED_PLAYER) { Text(stringResource(R.string.tab_highlighted_player)) }
+        composable(TOURNAMENTS) { Text(stringResource(R.string.tab_tournaments)) }
+        composable(MATCH_LIST) {
             MatchesScreen(onNavigateToDetail = { itemId ->
-                navController.navigate(MatchAppRoutes.getDetailsArgumentRoute(itemId))
+                navController.navigate(getDetailsArgumentRoute(itemId))
             })
         }
         composable(
-            "${MatchAppRoutes.SCREEN_MATCH_DETAILS}/{${MatchAppRoutes.ITEM_ID}}",
-            arguments = listOf(navArgument(MatchAppRoutes.ITEM_ID) { type = NavType.StringType } )
+            "${MATCH_DETAILS}/{$ITEM_ID}",
+            arguments = listOf(navArgument(ITEM_ID) { type = NavType.StringType } )
         ) { backStackEntry ->
-            val itemId = backStackEntry.arguments?.getString(MatchAppRoutes.ITEM_ID) ?: return@composable
+            val itemId = backStackEntry.arguments?.getString(ITEM_ID) ?: return@composable
             MatchDetailScreen(itemId = itemId)
-
         }
-        composable(HomeNavRoutes.ATP_RANKINGS) { Text(stringResource(R.string.tab_atp_rankings)) }
-        composable(HomeNavRoutes.WTA_RANKINGS) { Text(stringResource(R.string.tab_wta_rankings)) }
+        composable(NavRoutes.ATP_RANKINGS) { Text(stringResource(R.string.tab_atp_rankings)) }
+        composable(NavRoutes.WTA_RANKINGS) { Text(stringResource(R.string.tab_wta_rankings)) }
 
     }
 }

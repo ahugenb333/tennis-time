@@ -31,13 +31,6 @@ import com.ahugenb.tt.match.list.domain.Match
 import com.ahugenb.tt.match.list.domain.ServingState
 import com.ahugenb.tt.match.list.domain.SetScore
 
-object MatchAppRoutes {
-    const val SCREEN_MATCH_LIST = "matchList"
-    const val SCREEN_MATCH_DETAILS = "matchDetails"
-    const val ITEM_ID = "itemId"
-    fun getDetailsArgumentRoute(itemId: String) = "$SCREEN_MATCH_DETAILS/$itemId"
-}
-
 @Composable
 fun MatchesScreen(viewModel: MatchViewModel = hiltViewModel(), onNavigateToDetail: (String) -> Unit) {
     val state = viewModel.matchesState.collectAsStateWithLifecycle().value
