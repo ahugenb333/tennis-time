@@ -1,10 +1,10 @@
-package com.ahugenb.tt.match
+package com.ahugenb.tt.match.list
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahugenb.tt.api.TennisRepository
-import com.ahugenb.tt.match.domain.Match
+import com.ahugenb.tt.match.list.domain.Match
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +21,7 @@ sealed class MatchListUIState {
     data class All(val matches: List<Match>): MatchListUIState()
 }
 
+
 @HiltViewModel
 class MatchViewModel @Inject constructor(
     private val repository: TennisRepository
@@ -33,7 +34,7 @@ class MatchViewModel @Inject constructor(
         fetchMatches()
     }
 
-    private fun fetchMatches() {
+    fun fetchMatches() {
         _matchesState.value = MatchListUIState.Loading
         viewModelScope.launch {
             repository.fetchMatches()
