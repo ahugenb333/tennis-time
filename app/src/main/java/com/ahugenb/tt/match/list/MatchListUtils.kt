@@ -1,11 +1,11 @@
-package com.ahugenb.tt.match
+package com.ahugenb.tt.match.list
 
-import com.ahugenb.tt.match.domain.Match
-import com.ahugenb.tt.match.domain.ServingState
-import com.ahugenb.tt.match.domain.SetScore
-import com.ahugenb.tt.match.response.MatchResponse
+import com.ahugenb.tt.match.list.domain.Match
+import com.ahugenb.tt.match.list.domain.ServingState
+import com.ahugenb.tt.match.list.domain.SetScore
+import com.ahugenb.tt.match.list.response.MatchResponse
 
-class MatchUtils {
+class MatchListUtils {
     companion object {
         fun MatchResponse.toDomainMatch(): Match {
             // Parse set scores and handle tiebreak logic within each set

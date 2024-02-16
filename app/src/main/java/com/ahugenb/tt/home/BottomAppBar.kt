@@ -26,7 +26,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.ahugenb.tt.R
-import com.ahugenb.tt.match.view.MatchesScreen
+import com.ahugenb.tt.match.MatchTabNavHost
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -111,7 +111,7 @@ fun BottomAppBar(
             when (currentScreen) {
                 Screen.HIGHLIGHTED_PLAYER -> Text(stringResource(R.string.tab_highlighted_player))
                 Screen.TOURNAMENTS -> Text(stringResource(R.string.tab_tournaments))
-                Screen.LIVE_MATCHES -> MatchesScreen()
+                Screen.LIVE_MATCHES -> MatchTabNavHost()
                 Screen.ATP_RANKINGS -> Text(stringResource(R.string.tab_atp_rankings))
                 Screen.WTA_RANKINGS -> Text(stringResource(R.string.tab_wta_rankings))
             }

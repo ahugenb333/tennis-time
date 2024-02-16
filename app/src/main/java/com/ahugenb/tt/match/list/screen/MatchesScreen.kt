@@ -1,5 +1,6 @@
-package com.ahugenb.tt.match.view
+package com.ahugenb.tt.match.list.screen
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,14 +25,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ahugenb.tt.match.MatchListUIState
-import com.ahugenb.tt.match.MatchViewModel
-import com.ahugenb.tt.match.domain.Match
-import com.ahugenb.tt.match.domain.ServingState
-import com.ahugenb.tt.match.domain.SetScore
+import com.ahugenb.tt.match.list.MatchListUIState
+import com.ahugenb.tt.match.list.MatchViewModel
+import com.ahugenb.tt.match.list.domain.Match
+import com.ahugenb.tt.match.list.domain.ServingState
+import com.ahugenb.tt.match.list.domain.SetScore
 
 @Composable
-fun MatchesScreen(viewModel: MatchViewModel = hiltViewModel()) {
+fun MatchesScreen(viewModel: MatchViewModel = hiltViewModel(), onNavigateToDetail: (String) -> Unit ) {
     val state = viewModel.matchesState.collectAsStateWithLifecycle().value
 
     when(state) {
@@ -42,14 +43,14 @@ fun MatchesScreen(viewModel: MatchViewModel = hiltViewModel()) {
             Text("Loading")
         }
         is MatchListUIState.All -> {
-            MatchesList(matches = state.matches, viewModel::fetchMatches)
+            MatchesList(matches = state.matches, viewModel::fetchMatches, onNavigateToDetail)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MatchesList(matches: List<Match>, onRefresh: () -> Unit) {
+fun MatchesList(matches: List<Match>, onRefresh: () -> Unit, onMatchClicked: (String) -> Unit) {
     val pullToRefreshState = rememberPullToRefreshState()
 
     if (pullToRefreshState.isRefreshing) {
@@ -63,7 +64,7 @@ fun MatchesList(matches: List<Match>, onRefresh: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(matches) { match ->
-                MatchItem(match)
+                MatchItem(match, onMatchClicked)
             }
         }
         PullToRefreshContainer(
@@ -74,11 +75,12 @@ fun MatchesList(matches: List<Match>, onRefresh: () -> Unit) {
 }
 
 @Composable
-fun MatchItem(match: Match) {
+fun MatchItem(match: Match, onMatchClicked: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp)
+            .clickable { onMatchClicked(match.id) }
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
