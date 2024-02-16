@@ -17,6 +17,7 @@ class HomeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            //MainViewModel ScreenState is used to manage the home screen tabs
             val viewModel: MainViewModel = viewModel()
             val mainState = viewModel.screenState.collectAsStateWithLifecycle().value
 

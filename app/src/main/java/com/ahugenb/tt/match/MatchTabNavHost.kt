@@ -7,28 +7,33 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.ahugenb.tt.match.MatchAppRoutes.ITEM_ID
+import com.ahugenb.tt.match.MatchAppRoutes.SCREEN_MATCH_DETAILS
+import com.ahugenb.tt.match.MatchAppRoutes.SCREEN_MATCH_LIST
+import com.ahugenb.tt.match.MatchAppRoutes.getDetailsArgumentRoute
 import com.ahugenb.tt.match.detail.screen.MatchDetailScreen
 import com.ahugenb.tt.match.list.screen.MatchesScreen
 
 
 object MatchAppRoutes {
-    const val SCREEN_LIST = "screenList"
-    const val SCREEN_DETAILS = "screenDetails/{itemId}" // Using a dynamic argument for item ID
-    fun screenDetailsRoute(itemId: String) = "screenDetails/$itemId"
+    const val SCREEN_MATCH_LIST = "matchList"
+    const val SCREEN_MATCH_DETAILS = "matchDetails"
+    const val ITEM_ID = "itemId"
+    fun getDetailsArgumentRoute(itemId: String) = "$SCREEN_MATCH_DETAILS/$itemId"
 }
 @Composable
 fun MatchTabNavHost(navController: NavHostController = rememberNavController()) {
-    NavHost(navController = navController, startDestination = MatchAppRoutes.SCREEN_LIST) {
-        composable(MatchAppRoutes.SCREEN_LIST) {
+    NavHost(navController = navController, startDestination = SCREEN_MATCH_LIST) {
+        composable(SCREEN_MATCH_LIST) {
             MatchesScreen(onNavigateToDetail = { itemId ->
-                navController.navigate(MatchAppRoutes.screenDetailsRoute(itemId))
+                navController.navigate(getDetailsArgumentRoute(itemId))
             })
         }
         composable(
-            MatchAppRoutes.SCREEN_DETAILS,
-            arguments = listOf(navArgument("itemId") { type = NavType.StringType } )
+            "$SCREEN_MATCH_DETAILS/{$ITEM_ID}",
+            arguments = listOf(navArgument(ITEM_ID) { type = NavType.StringType } )
         ) { backStackEntry ->
-            val itemId = backStackEntry.arguments?.getString("itemId") ?: return@composable
+            val itemId = backStackEntry.arguments?.getString(ITEM_ID) ?: return@composable
             MatchDetailScreen(itemId = itemId)
 
         }

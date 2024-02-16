@@ -37,7 +37,7 @@ fun BottomAppBar(
     val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
 
     Scaffold(
-        modifier  = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
             BottomAppBar(
                 containerColor = MaterialTheme.colorScheme.secondary,

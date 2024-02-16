@@ -32,7 +32,7 @@ import com.ahugenb.tt.match.list.domain.ServingState
 import com.ahugenb.tt.match.list.domain.SetScore
 
 @Composable
-fun MatchesScreen(viewModel: MatchViewModel = hiltViewModel(), onNavigateToDetail: (String) -> Unit ) {
+fun MatchesScreen(viewModel: MatchViewModel = hiltViewModel(), onNavigateToDetail: (String) -> Unit) {
     val state = viewModel.matchesState.collectAsStateWithLifecycle().value
 
     when(state) {
