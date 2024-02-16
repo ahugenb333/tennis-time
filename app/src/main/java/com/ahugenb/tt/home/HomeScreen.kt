@@ -3,13 +3,13 @@ package com.ahugenb.tt.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -45,8 +46,8 @@ object NavRoutes {
 @Composable
 fun HomeScreen() {
     val navController = rememberNavController()
-    val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior()
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val scrollBehavior = BottomAppBarDefaults.exitAlwaysScrollBehavior() // Initialize scroll behavior
 
     val bottomNavItems = listOf(
         HIGHLIGHTED_PLAYER to R.string.tab_highlighted_player,
@@ -56,10 +57,12 @@ fun HomeScreen() {
         WTA_RANKINGS to R.string.tab_wta_rankings
     )
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection).fillMaxSize(),
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
-            NavigationBar(
+            BottomAppBar(
+                contentPadding = PaddingValues(0.dp),
                 containerColor = MaterialTheme.colorScheme.secondary,
+                scrollBehavior = scrollBehavior
             ) {
                 if (currentRoute != null && !currentRoute.startsWith(MATCH_DETAILS)) {
                     bottomNavItems.forEach { (route, labelRes) ->
@@ -90,7 +93,9 @@ fun HomeScreen() {
             }
         }
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+        Box(
+            modifier = Modifier.padding(innerPadding).background(MaterialTheme.colorScheme.surface)
+        ) {
             HomeNavHost(navController = navController)
         }
     }
@@ -106,7 +111,7 @@ fun BottomNavigationItem(
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier
-            .fillMaxWidth()
+            .fillMaxSize()
             .background(
                 if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
                 RectangleShape

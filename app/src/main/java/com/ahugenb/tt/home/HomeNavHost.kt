@@ -9,11 +9,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.ahugenb.tt.R
+import com.ahugenb.tt.home.NavRoutes.ATP_RANKINGS
 import com.ahugenb.tt.home.NavRoutes.HIGHLIGHTED_PLAYER
 import com.ahugenb.tt.home.NavRoutes.ITEM_ID
 import com.ahugenb.tt.home.NavRoutes.MATCH_DETAILS
 import com.ahugenb.tt.home.NavRoutes.MATCH_LIST
 import com.ahugenb.tt.home.NavRoutes.TOURNAMENTS
+import com.ahugenb.tt.home.NavRoutes.WTA_RANKINGS
 import com.ahugenb.tt.home.NavRoutes.getDetailsArgumentRoute
 import com.ahugenb.tt.match.detail.screen.MatchDetailScreen
 import com.ahugenb.tt.match.list.screen.MatchesScreen
@@ -36,8 +38,8 @@ fun HomeNavHost(navController: NavHostController) {
             val itemId = backStackEntry.arguments?.getString(ITEM_ID) ?: return@composable
             MatchDetailScreen(itemId = itemId)
         }
-        composable(NavRoutes.ATP_RANKINGS) { Text(stringResource(R.string.tab_atp_rankings)) }
-        composable(NavRoutes.WTA_RANKINGS) { Text(stringResource(R.string.tab_wta_rankings)) }
+        composable(ATP_RANKINGS) { Text(stringResource(R.string.tab_atp_rankings)) }
+        composable(WTA_RANKINGS) { Text(stringResource(R.string.tab_wta_rankings)) }
 
     }
 }
