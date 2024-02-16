@@ -18,7 +18,7 @@ import com.ahugenb.tt.home.NavRoutes.TOURNAMENTS
 import com.ahugenb.tt.home.NavRoutes.WTA_RANKINGS
 import com.ahugenb.tt.home.NavRoutes.getDetailsArgumentRoute
 import com.ahugenb.tt.match.detail.screen.MatchDetailScreen
-import com.ahugenb.tt.match.list.screen.MatchesScreen
+import com.ahugenb.tt.match.list.screen.MatchListScreen
 
 
 @Composable
@@ -27,7 +27,7 @@ fun HomeNavHost(navController: NavHostController) {
         composable(HIGHLIGHTED_PLAYER) { Text(stringResource(R.string.tab_highlighted_player)) }
         composable(TOURNAMENTS) { Text(stringResource(R.string.tab_tournaments)) }
         composable(MATCH_LIST) {
-            MatchesScreen(onNavigateToDetail = { itemId ->
+            MatchListScreen(onNavigateToDetail = { itemId ->
                 navController.navigate(getDetailsArgumentRoute(itemId))
             })
         }

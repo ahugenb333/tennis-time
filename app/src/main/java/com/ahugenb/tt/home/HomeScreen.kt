@@ -57,6 +57,7 @@ fun HomeScreen() {
         WTA_RANKINGS to R.string.tab_wta_rankings
     )
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.surface,
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         bottomBar = {
             BottomAppBar(
@@ -93,9 +94,7 @@ fun HomeScreen() {
             }
         }
     ) { innerPadding ->
-        Box(
-            modifier = Modifier.padding(innerPadding).background(MaterialTheme.colorScheme.surface)
-        ) {
+        Box(modifier = Modifier.padding(innerPadding)) {
             HomeNavHost(navController = navController)
         }
     }

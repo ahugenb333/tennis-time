@@ -1,9 +1,9 @@
-package com.ahugenb.tt.match.list
+package com.ahugenb.tt.match.list.model
 
-import com.ahugenb.tt.match.list.domain.Match
-import com.ahugenb.tt.match.list.domain.ServingState
-import com.ahugenb.tt.match.list.domain.SetScore
-import com.ahugenb.tt.match.list.response.MatchResponse
+import com.ahugenb.tt.match.list.model.domain.Match
+import com.ahugenb.tt.match.list.model.domain.ServingState
+import com.ahugenb.tt.match.list.model.domain.SetScore
+import com.ahugenb.tt.match.list.model.response.MatchResponse
 
 class MatchListUtils {
     companion object {

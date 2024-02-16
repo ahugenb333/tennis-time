@@ -13,10 +13,10 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val FOColorScheme = darkColorScheme(
-    primary = FOOrange,
-    secondary = FOGreen,
+    primary = FOGreen,
+    secondary = FOOrange,
     tertiary = Color.White,
-    surface = FOOrange
+    surface = FOGreen
 
 )
 

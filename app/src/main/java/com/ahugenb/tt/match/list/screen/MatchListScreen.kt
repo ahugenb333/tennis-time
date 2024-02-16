@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,14 +26,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.ahugenb.tt.common.LoadingSpinner
 import com.ahugenb.tt.match.list.MatchListUIState
-import com.ahugenb.tt.match.list.MatchViewModel
-import com.ahugenb.tt.match.list.domain.Match
-import com.ahugenb.tt.match.list.domain.ServingState
-import com.ahugenb.tt.match.list.domain.SetScore
+import com.ahugenb.tt.match.list.MatchListViewModel
+import com.ahugenb.tt.match.list.model.domain.Match
+import com.ahugenb.tt.match.list.model.domain.ServingState
+import com.ahugenb.tt.match.list.model.domain.SetScore
 
 @Composable
-fun MatchesScreen(viewModel: MatchViewModel = hiltViewModel(), onNavigateToDetail: (String) -> Unit) {
+fun MatchListScreen(viewModel: MatchListViewModel = hiltViewModel(), onNavigateToDetail: (String) -> Unit) {
     val state = viewModel.matchesState.collectAsStateWithLifecycle().value
 
     when(state) {
@@ -40,17 +42,17 @@ fun MatchesScreen(viewModel: MatchViewModel = hiltViewModel(), onNavigateToDetai
             Text("No Live Match Data Available")
         }
         MatchListUIState.Loading -> {
-            Text("Loading")
+            LoadingSpinner()
         }
         is MatchListUIState.All -> {
-            MatchesList(matches = state.matches, viewModel::fetchMatches, onNavigateToDetail)
+            MatchList(matches = state.matches, viewModel::fetchMatches, onNavigateToDetail)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MatchesList(matches: List<Match>, onRefresh: () -> Unit, onMatchClicked: (String) -> Unit) {
+fun MatchList(matches: List<Match>, onRefresh: () -> Unit, onMatchClicked: (String) -> Unit) {
     val pullToRefreshState = rememberPullToRefreshState()
 
     if (pullToRefreshState.isRefreshing) {
@@ -60,6 +62,7 @@ fun MatchesList(matches: List<Match>, onRefresh: () -> Unit, onMatchClicked: (St
     }
     Box(Modifier.nestedScroll(pullToRefreshState.nestedScrollConnection)) {
         LazyColumn(
+            modifier = Modifier.fillMaxHeight(),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {

@@ -1,4 +1,4 @@
-package com.ahugenb.tt.match.list.domain
+package com.ahugenb.tt.match.list.model.domain
 
 data class Match(
     val id: String,

@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahugenb.tt.api.TennisRepository
-import com.ahugenb.tt.match.list.domain.Match
+import com.ahugenb.tt.match.list.model.domain.Match
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +23,7 @@ sealed class MatchListUIState {
 
 
 @HiltViewModel
-class MatchViewModel @Inject constructor(
+class MatchListViewModel @Inject constructor(
     private val repository: TennisRepository
 ): ViewModel() {
 

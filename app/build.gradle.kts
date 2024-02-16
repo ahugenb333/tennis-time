@@ -78,6 +78,8 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.48")
     implementation("androidx.compose.material3:material3-android:1.2.0")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
+    //lottie compose
+    implementation("com.airbnb.android:lottie-compose:6.3.0")
 
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
     testImplementation("junit:junit:4.13.2")
