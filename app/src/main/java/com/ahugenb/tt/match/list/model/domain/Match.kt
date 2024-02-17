@@ -6,7 +6,7 @@ data class Match(
     val awayPlayer: String,
     val sets: List<SetScore>,
     val currentSet: Int,
-    val servingState: ServingState, // This will be determined based on the logic we implement
+    val servingState: ServingState,
     val homeScore: String,
     val awayScore: String,
     val round: String,

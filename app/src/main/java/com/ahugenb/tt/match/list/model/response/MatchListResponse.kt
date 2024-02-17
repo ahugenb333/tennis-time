@@ -2,7 +2,7 @@ package com.ahugenb.tt.match.list.model.response
 
 import com.google.gson.annotations.SerializedName
 
-data class MatchResponseWrapper(
+data class MatchListResponse(
     @SerializedName("matches")
     val matchResponse: List<MatchResponse>
 )

@@ -1,5 +1,6 @@
 package com.ahugenb.tt.api.modules
 
+import com.ahugenb.tt.api.ApiHeaderInterceptor
 import com.ahugenb.tt.api.TennisApiService
 import dagger.Module
 import dagger.Provides
@@ -24,6 +25,7 @@ object NetworkModule {
 
         return OkHttpClient.Builder()
             .addInterceptor(logging)
+            .addInterceptor(ApiHeaderInterceptor())
             .build()
     }
 
