@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
@@ -27,32 +28,39 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ahugenb.tt.common.BouncingBallLoader
-import com.ahugenb.tt.match.list.MatchListUIState
-import com.ahugenb.tt.match.list.MatchListViewModel
+import com.ahugenb.tt.match.MatchDetailUIState
+import com.ahugenb.tt.match.MatchListUIState
+import com.ahugenb.tt.match.MatchViewModel
+import com.ahugenb.tt.match.detail.response.Statistic
 import com.ahugenb.tt.match.list.model.domain.Match
 import com.ahugenb.tt.match.list.model.domain.ServingState
 import com.ahugenb.tt.match.list.model.domain.SetScore
 
 @Composable
-fun MatchListScreen(viewModel: MatchListViewModel = hiltViewModel(), onNavigateToDetail: (String) -> Unit) {
-    val state = viewModel.matchesState.collectAsStateWithLifecycle().value
+fun MatchListScreen(
+    viewModel: MatchViewModel = hiltViewModel()
+) {
+    val matchListState = viewModel.matchListUIState.collectAsStateWithLifecycle().value
+    val matchDetailState = viewModel.matchDetailUIState.collectAsStateWithLifecycle().value
 
-    when(state) {
+    when (matchListState) {
         MatchListUIState.Empty -> {
             Text("No Live Match Data Available")
         }
+
         MatchListUIState.Loading -> {
             BouncingBallLoader()
         }
+
         is MatchListUIState.All -> {
-            MatchList(matches = state.matches, viewModel::fetchMatches, onNavigateToDetail)
+            MatchList(matches = matchListState.matches, matchDetailState, viewModel::fetchMatches, viewModel::toggleMatchDetails)
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MatchList(matches: List<Match>, onRefresh: () -> Unit, onMatchClicked: (String) -> Unit) {
+fun MatchList(matches: List<Match>, matchDetailState: MatchDetailUIState, onRefresh: () -> Unit, onMatchClicked: (String) -> Unit) {
     val pullToRefreshState = rememberPullToRefreshState()
 
     if (pullToRefreshState.isRefreshing) {
@@ -67,7 +75,7 @@ fun MatchList(matches: List<Match>, onRefresh: () -> Unit, onMatchClicked: (Stri
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(matches) { match ->
-                MatchItem(match, onMatchClicked)
+                MatchItem(match, matchDetailState, onMatchClicked)
             }
         }
         PullToRefreshContainer(
@@ -78,7 +86,7 @@ fun MatchList(matches: List<Match>, onRefresh: () -> Unit, onMatchClicked: (Stri
 }
 
 @Composable
-fun MatchItem(match: Match, onMatchClicked: (String) -> Unit) {
+fun MatchItem(match: Match, matchDetailState: MatchDetailUIState, onMatchClicked: (String) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -93,20 +101,70 @@ fun MatchItem(match: Match, onMatchClicked: (String) -> Unit) {
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(text = "${match.homePlayer} vs ${match.awayPlayer}")
-            Text(text = "Serving: " +
-                    when (match.servingState) {
-                        ServingState.HOME_IS_SERVING -> match.homePlayer
-                        ServingState.AWAY_IS_SERVING -> match.awayPlayer
-                        ServingState.NONE -> "Coin Flip"
-                    })
             Text(
-                text = "Surface: ${match.surface}")
+                text = "Serving: " +
+                        when (match.servingState) {
+                            ServingState.HOME_IS_SERVING -> match.homePlayer
+                            ServingState.AWAY_IS_SERVING -> match.awayPlayer
+                            ServingState.NONE -> "Coin Flip"
+                        }
+            )
+            Text(
+                text = "Surface: ${match.surface}"
+            )
             Text(
                 text = "Current Set: ${match.currentSet}, " +
-                        "Scores: ${match.homeScore} - ${match.awayScore}",)
+                        "Scores: ${match.homeScore} - ${match.awayScore}",
+            )
             Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Sets: ${formatHomeSets(match.sets)} vs ${formatAwaySets(match.sets)}",)
+            Text(text = "Sets: ${formatHomeSets(match.sets)} vs ${formatAwaySets(match.sets)}")
+            when (matchDetailState) {
+                is MatchDetailUIState.Loading -> {
+                    if (matchDetailState.loadingMatchId == match.id) {
+                        CenteredProgressIndicator()
+                    }
+                }
+                is MatchDetailUIState.All -> {
+                    if (matchDetailState.selectedMatchId == match.id) {
+                        MatchStatistics(statistic = match.statistic)
+                    }
+                }
+                else -> { }
+            }
         }
+    }
+}
+
+@Composable
+fun CenteredProgressIndicator() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(16.dp).fillMaxWidth()
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+fun MatchStatistics(statistic: Statistic?) {
+    if (statistic != null) {
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Aces P1: ${statistic.acesP1}")
+        Text(text = "Aces P2: ${statistic.acesP2}")
+        Text(text = "First Serve P1: ${statistic.firstServeP1}")
+        Text(text = "First Serve P2: ${statistic.firstServeP2}")
+        Text(text = "First Serve Points P1: ${statistic.firstServePointsP1}")
+        Text(text = "First Serve Points P2: ${statistic.firstServePointsP2}")
+        Text(text = "Second Serve P1: ${statistic.secondServeP1}")
+        Text(text = "Second Serve P2: ${statistic.secondServeP2}")
+        Text(text = "Break Points Converted P1: ${statistic.breakPointsConvertedP1}")
+        Text(text = "Break Points Converted P2: ${statistic.breakPointsConvertedP2}")
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(text = "Break Points Saved P1: ${statistic.breakPointsSavedP1}")
+        Text(text = "Break Points Saved P2: ${statistic.breakPointsSavedP2}")
+        Text(text = "Service Games Played P1: ${statistic.serviceGamesPlayedP1}")
+        Text(text = "Service Games Played P2: ${statistic.serviceGamesPlayedP2}")
+        Text(text = "Tournament: ${statistic.tournament}")
     }
 }
 

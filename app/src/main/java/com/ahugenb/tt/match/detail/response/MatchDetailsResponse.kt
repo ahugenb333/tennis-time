@@ -1,4 +1,4 @@
-package com.ahugenb.tt.match.detail.model
+package com.ahugenb.tt.match.detail.response
 
 import com.google.gson.annotations.SerializedName
 

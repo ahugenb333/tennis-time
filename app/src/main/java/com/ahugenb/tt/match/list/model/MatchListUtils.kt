@@ -4,9 +4,24 @@ import com.ahugenb.tt.match.list.model.domain.Match
 import com.ahugenb.tt.match.list.model.domain.ServingState
 import com.ahugenb.tt.match.list.model.domain.SetScore
 import com.ahugenb.tt.match.list.model.response.MatchResponse
+import kotlin.math.roundToInt
 
 class MatchListUtils {
     companion object {
+
+        //convert European decimal odds to American moneyline odds
+        fun Double.toAmericanOdds(): Int {
+            if (this > 2.0) {
+                return roundToNearest5((this - 1.0) * 100) // Underdog
+            } else {
+                return -roundToNearest5(100.0 / (this - 1.0)) // Favorite
+            }
+        }
+
+        private fun roundToNearest5(num: Double): Int {
+            return (num / 5.0).roundToInt() * 5
+        }
+
         fun MatchResponse.toDomainMatch(): Match {
             // Parse set scores and handle tiebreak logic within each set
             val sets = listOf(
@@ -35,7 +50,11 @@ class MatchListUtils {
                 awayScore = player2Score,
                 round = round,
                 tournament = tournament,
-                surface = surface
+                surface = surface,
+                liveHomeOdd = liveHomeOdd.toAmericanOdds(),
+                liveAwayOdd = liveAwayOdd.toAmericanOdds(),
+                initialHomeOdd = initialHomeOdd.toAmericanOdds(),
+                initialAwayOdd = initialAwayOdd.toAmericanOdds()
             )
         }
 

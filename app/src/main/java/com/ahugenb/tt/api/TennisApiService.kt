@@ -1,6 +1,6 @@
 package com.ahugenb.tt.api
 
-import com.ahugenb.tt.match.detail.model.MatchDetailsResponse
+import com.ahugenb.tt.match.detail.response.MatchDetailsResponse
 import com.ahugenb.tt.match.list.model.response.MatchListResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
