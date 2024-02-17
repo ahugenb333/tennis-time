@@ -26,7 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.ahugenb.tt.common.LoadingSpinner
+import com.ahugenb.tt.common.BouncingBallLoader
 import com.ahugenb.tt.match.list.MatchListUIState
 import com.ahugenb.tt.match.list.MatchListViewModel
 import com.ahugenb.tt.match.list.model.domain.Match
@@ -42,7 +42,7 @@ fun MatchListScreen(viewModel: MatchListViewModel = hiltViewModel(), onNavigateT
             Text("No Live Match Data Available")
         }
         MatchListUIState.Loading -> {
-            LoadingSpinner()
+            BouncingBallLoader()
         }
         is MatchListUIState.All -> {
             MatchList(matches = state.matches, viewModel::fetchMatches, onNavigateToDetail)

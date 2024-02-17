@@ -9,12 +9,12 @@ import androidx.compose.ui.Modifier
 import com.ahugenb.tt.R
 
 @Composable
-fun LoadingSpinner() {
+fun BouncingBallLoader() {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        AnimationLoader(res = R.raw.loading_animation)
+        AnimationLoader(res = R.raw.ball_bouncing, 3.5f)
     }
 }
