@@ -9,15 +9,15 @@ import kotlin.math.roundToInt
 
 class MatchListUtils {
     companion object {
-
-        //convert European decimal odds to American moneyline odds
         private fun Double.toAmericanOdds(): String {
-            if (this > 2.0) {
+            return if (this > 2.0) {
+                // Underdog
                 val rounded = roundToNearest5((this - 1.0) * 100)
-                return "+${rounded}"// Underdog
+                "+$rounded"
             } else {
+                // Favorite
                 val rounded = roundToNearest5(100.0 / (this - 1.0))
-                return "-${rounded}" // Favorite
+                "-${rounded}"
             }
         }
 
@@ -47,8 +47,8 @@ class MatchListUtils {
 
             return Match(
                 id = id,
-                homePlayer = homePlayer,
-                awayPlayer = awayPlayer,
+                homePlayer = homePlayer.parseDoublesName(),
+                awayPlayer = awayPlayer.parseDoublesName(),
                 sets = sets,
                 currentSet = currentSetInt,
                 servingState = servingState,
@@ -61,6 +61,11 @@ class MatchListUtils {
                 initialHomeOdd = initialHomeOdd.toAmericanOdds(),
                 initialAwayOdd = initialAwayOdd.toAmericanOdds()
             )
+        }
+
+        private fun String.parseDoublesName(): String {
+            if (!this.contains(" / ")) return this
+            return this.replace(" / ", "\n")
         }
 
         private fun parseTournament(tournament: String, round: String): Tournament {

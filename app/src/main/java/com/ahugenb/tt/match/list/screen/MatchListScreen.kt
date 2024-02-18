@@ -2,6 +2,7 @@ package com.ahugenb.tt.match.list.screen
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -47,6 +48,7 @@ import com.ahugenb.tt.match.MatchListUIState
 import com.ahugenb.tt.match.MatchViewModel
 import com.ahugenb.tt.match.detail.response.Statistic
 import com.ahugenb.tt.match.list.model.domain.Match
+import com.ahugenb.tt.match.list.model.domain.ServingState
 import com.ahugenb.tt.match.list.model.domain.SetScore
 
 @Composable
@@ -66,7 +68,12 @@ fun MatchListScreen(
         }
 
         is MatchListUIState.All -> {
-            MatchList(matches = matchListState.matches, matchDetailState, viewModel::fetchMatches, viewModel::fetchMatchDetails)
+            MatchList(
+                matches = matchListState.matches,
+                matchDetailState,
+                viewModel::fetchMatches,
+                viewModel::fetchMatchDetails
+            )
         }
     }
 }
@@ -123,7 +130,8 @@ fun MatchItem(
     // Expanded state for the card
     val isExpanded = selectedMatchId == match.id
     // Arrow rotation animation
-    val arrowRotationDegree by animateFloatAsState(targetValue = if (isExpanded) 180f else 0f,
+    val arrowRotationDegree by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
         label = ""
     )
 
@@ -143,70 +151,111 @@ fun MatchItem(
         elevation = cardElevation
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp),
             horizontalArrangement = Arrangement.Center
         ) {
-            Column {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
                 Text(
                     text = match.tournament.name,
                     style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = match.tournament.round,
+                    text = "${match.tournament.round} (${match.surface})",
                     style = MaterialTheme.typography.titleSmall,
                     textAlign = TextAlign.Center
                 )
+                val sets = formatSets(match.sets)
                 Text(
-                    text = match.surface,
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = "$sets | ${match.homeScore} - ${match.awayScore}",
+                    style = MaterialTheme.typography.titleSmall,
                     textAlign = TextAlign.Center
                 )
             }
         }
 
-        Column(modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 2.dp)) {
+        Column(
+            modifier = Modifier.padding(
+                start = 12.dp,
+                end = 12.dp,
+                top = 12.dp,
+                bottom = 2.dp
+            )
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 // Player names and match info in two columns
                 Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = match.homePlayer,
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.Start
+                        )
+                        if (match.servingState === ServingState.HOME_IS_SERVING) {
+                            Spacer(modifier = Modifier.size(4.dp))
+                            ServeIndicator()
+                        }
+                    }
                     Text(
-                        text = match.homePlayer,
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Start
-                    )
-                    Text(
-                        text = "Sets: ${formatHomeSets(match.sets)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Start
-                    )
-                    Text(
-                        text = "Odds: ${match.liveHomeOdd}",
+                        text = "Live Odds: ${match.liveHomeOdd}",
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Start
+                    )
+                    Text(
+                        text = "Initial Odds: ${match.initialHomeOdd}",
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.End
                     )
                 }
                 Column(
                     modifier = Modifier.weight(1f),
                     horizontalAlignment = Alignment.End
                 ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (match.servingState === ServingState.AWAY_IS_SERVING) {
+                            ServeIndicator()
+                            Spacer(modifier = Modifier.size(4.dp))
+                        }
+                        Text(
+                            text = match.awayPlayer,
+                            style = MaterialTheme.typography.titleMedium,
+                            textAlign = TextAlign.End
+                        )
+                    }
                     Text(
-                        text = match.awayPlayer,
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.End
-                    )
-                    Text(
-                        text = "Sets: ${formatAwaySets(match.sets)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.End
-                    )
-                    Text(
-                        text = "Odds: ${match.liveAwayOdd}",
+                        text = "Live Odds: ${match.liveAwayOdd}",
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.End
                     )
+                    Text(
+                        text = "Initial Odds: ${match.initialAwayOdd}",
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+            if (match.id == selectedMatchId) {
+                when (matchDetailState) {
+                    is MatchDetailUIState.Loading -> {
+                        CenteredProgressIndicator()
+                    }
+
+                    is MatchDetailUIState.Populated -> {
+                        MatchStatistics(match.statistic)
+                    }
+
+                    else -> {}
                 }
             }
             Row(
@@ -228,18 +277,15 @@ fun MatchItem(
                     )
                 }
             }
-            if (match.id == selectedMatchId) {
-                when (matchDetailState) {
-                    is MatchDetailUIState.Loading -> {
-                        CenteredProgressIndicator()
-                    }
-                    is MatchDetailUIState.Populated -> {
-                        MatchStatistics(match.statistic)
-                    }
-                    else -> { }
-                }
-            }
         }
+    }
+}
+
+@Composable
+fun ServeIndicator() {
+    val color = MaterialTheme.colorScheme.primary
+    Canvas(modifier = Modifier.size(10.dp)) {
+        drawCircle(color = color)
     }
 }
 
@@ -274,13 +320,21 @@ fun MatchStatistics(statistic: Statistic?) {
         Text(text = "Break Points Saved P2: ${statistic.breakPointsSavedP2}")
         Text(text = "Service Games Played P1: ${statistic.serviceGamesPlayedP1}")
         Text(text = "Service Games Played P2: ${statistic.serviceGamesPlayedP2}")
-        Text(text = "Tournament: ${statistic.tournament}")
     }
 }
 
-private fun formatHomeSets(sets: List<SetScore>): String {
+private fun formatSets(sets: List<SetScore>): String {
     return sets.joinToString {
-        it.gamesHomePlayer.toString()
+        if (it.tieBreakLoserScore != null) {
+            val homePlayerWon = it.gamesHomePlayer > it.gamesAwayPlayer
+            if (homePlayerWon) {
+                "${it.gamesHomePlayer}-${it.gamesAwayPlayer}(${it.tieBreakLoserScore})"
+            } else {
+                "${it.gamesHomePlayer}(${it.tieBreakLoserScore})-${it.gamesAwayPlayer}"
+            }
+        } else {
+            "${it.gamesHomePlayer}-${it.gamesAwayPlayer}"
+        }
     }
 }
 
