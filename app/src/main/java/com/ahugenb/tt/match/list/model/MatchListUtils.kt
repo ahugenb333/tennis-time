@@ -10,11 +10,13 @@ class MatchListUtils {
     companion object {
 
         //convert European decimal odds to American moneyline odds
-        fun Double.toAmericanOdds(): Int {
+        private fun Double.toAmericanOdds(): String {
             if (this > 2.0) {
-                return roundToNearest5((this - 1.0) * 100) // Underdog
+                val rounded = roundToNearest5((this - 1.0) * 100)
+                return "+${rounded}"// Underdog
             } else {
-                return -roundToNearest5(100.0 / (this - 1.0)) // Favorite
+                val rounded = roundToNearest5(100.0 / (this - 1.0))
+                return "-${rounded}" // Favorite
             }
         }
 

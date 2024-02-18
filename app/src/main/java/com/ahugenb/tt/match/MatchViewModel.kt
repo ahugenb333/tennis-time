@@ -26,10 +26,9 @@ sealed class MatchDetailUIState {
 
     data object Empty : MatchDetailUIState()
 
-    //loadingMatchId is needed or else all the cards display a loading indicator
-    data class Loading(val loadingMatchId: String) : MatchDetailUIState()
+    data object Loading : MatchDetailUIState()
 
-    data class All(val selectedMatchId: String) : MatchDetailUIState()
+    data object Populated : MatchDetailUIState()
 }
 
 
@@ -68,18 +67,8 @@ class MatchViewModel @Inject constructor(
         }
     }
 
-    fun toggleMatchDetails(matchId: String) {
-        if (_matchDetailUIState.value is MatchDetailUIState.All &&
-                (_matchDetailUIState.value as MatchDetailUIState.All).selectedMatchId == matchId) {
-                //same card clicked again, just collapse it
-                _matchDetailUIState.value = MatchDetailUIState.Empty
-                return
-        }
-        fetchMatchDetails(matchId)
-    }
-
-    private fun fetchMatchDetails(matchId: String) {
-        _matchDetailUIState.value = MatchDetailUIState.Loading(matchId)
+    fun fetchMatchDetails(matchId: String) {
+        _matchDetailUIState.value = MatchDetailUIState.Loading
         viewModelScope.launch {
             repository.fetchMatchDetails(matchId)
                 .flowOn(Dispatchers.IO)
@@ -89,7 +78,7 @@ class MatchViewModel @Inject constructor(
                 }
                 .collect { statistics ->
                     if (statistics.isNotEmpty()) {
-                        _matchDetailUIState.value = MatchDetailUIState.All(matchId)
+                        _matchDetailUIState.value = MatchDetailUIState.Populated
                         updateMatchWithStatistic(statistics[0], matchId)
                     } else {
                         MatchDetailUIState.Empty

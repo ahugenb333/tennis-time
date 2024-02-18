@@ -14,10 +14,10 @@ data class Match(
     val round: String,
     val tournament: String,
     val surface: String,
-    val liveHomeOdd: Int,
-    val liveAwayOdd: Int,
-    val initialHomeOdd: Int,
-    val initialAwayOdd: Int,
+    val liveHomeOdd: String,
+    val liveAwayOdd: String,
+    val initialHomeOdd: String,
+    val initialAwayOdd: String,
     var statistic: Statistic? = null
 )
 data class SetScore(

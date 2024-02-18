@@ -1,5 +1,6 @@
 package com.ahugenb.tt.match.list.screen
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,8 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -53,7 +56,7 @@ fun MatchListScreen(
         }
 
         is MatchListUIState.All -> {
-            MatchList(matches = matchListState.matches, matchDetailState, viewModel::fetchMatches, viewModel::toggleMatchDetails)
+            MatchList(matches = matchListState.matches, matchDetailState, viewModel::fetchMatches, viewModel::fetchMatchDetails)
         }
     }
 }
@@ -62,6 +65,7 @@ fun MatchListScreen(
 @Composable
 fun MatchList(matches: List<Match>, matchDetailState: MatchDetailUIState, onRefresh: () -> Unit, onMatchClicked: (String) -> Unit) {
     val pullToRefreshState = rememberPullToRefreshState()
+    val selectedMatchId = rememberSaveable { mutableStateOf("") }
 
     if (pullToRefreshState.isRefreshing) {
         LaunchedEffect(key1 = true) {
@@ -75,7 +79,16 @@ fun MatchList(matches: List<Match>, matchDetailState: MatchDetailUIState, onRefr
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(matches) { match ->
-                MatchItem(match, matchDetailState, onMatchClicked)
+                MatchItem(match, selectedMatchId.value, matchDetailState, onMatchClicked = { id ->
+                    if (id == selectedMatchId.value) {
+                        //collapse re-clicked item
+                        selectedMatchId.value = ""
+                    } else {
+                        //expand item
+                        selectedMatchId.value = id
+                    }
+                    onMatchClicked(id)
+                })
             }
         }
         PullToRefreshContainer(
@@ -86,9 +99,10 @@ fun MatchList(matches: List<Match>, matchDetailState: MatchDetailUIState, onRefr
 }
 
 @Composable
-fun MatchItem(match: Match, matchDetailState: MatchDetailUIState, onMatchClicked: (String) -> Unit) {
+fun MatchItem(match: Match, selectedMatchId: String, matchDetailState: MatchDetailUIState, onMatchClicked: (String) -> Unit) {
     Card(
         modifier = Modifier
+            .animateContentSize()
             .fillMaxWidth()
             .padding(8.dp)
             .clickable { onMatchClicked(match.id) }
@@ -116,20 +130,24 @@ fun MatchItem(match: Match, matchDetailState: MatchDetailUIState, onMatchClicked
                 text = "Current Set: ${match.currentSet}, " +
                         "Scores: ${match.homeScore} - ${match.awayScore}",
             )
+            Text(
+                text = "Live Home Betting Odds: ${match.liveHomeOdd}"
+            )
+            Text(
+                text = "Live Away Betting Odds: ${match.liveAwayOdd}"
+            )
             Spacer(modifier = Modifier.height(4.dp))
             Text(text = "Sets: ${formatHomeSets(match.sets)} vs ${formatAwaySets(match.sets)}")
-            when (matchDetailState) {
-                is MatchDetailUIState.Loading -> {
-                    if (matchDetailState.loadingMatchId == match.id) {
+            if (match.id == selectedMatchId) {
+                when (matchDetailState) {
+                    is MatchDetailUIState.Loading -> {
                         CenteredProgressIndicator()
                     }
-                }
-                is MatchDetailUIState.All -> {
-                    if (matchDetailState.selectedMatchId == match.id) {
-                        MatchStatistics(statistic = match.statistic)
+                    is MatchDetailUIState.Populated -> {
+                        MatchStatistics(match.statistic)
                     }
+                    else -> { }
                 }
-                else -> { }
             }
         }
     }
@@ -139,7 +157,9 @@ fun MatchItem(match: Match, matchDetailState: MatchDetailUIState, onMatchClicked
 fun CenteredProgressIndicator() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.padding(16.dp).fillMaxWidth()
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth()
     ) {
         CircularProgressIndicator()
     }
