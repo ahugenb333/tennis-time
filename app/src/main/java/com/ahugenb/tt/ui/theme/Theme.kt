@@ -12,41 +12,40 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val FOColorScheme = darkColorScheme(
-    primary = FOGreen,
-    secondary = FOOrange,
-    tertiary = Color.White,
-    surface = FOGreen
-
-)
-
-private val AOColorScheme = lightColorScheme(
+private val AustralianOpenTheme = lightColorScheme(
     primary = AOBlue,
-    secondary = AOWhite,
-    tertiary = Color.Black,
-    surface = AOBlue
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
     onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary = AOWhite,
+    onSecondary = AOBlue,
+    background = AOWhite,
+    onBackground = AOBlue,
+    surface = AOWhite,
+    onSurface = AOBlue
+    // Add other colors if necessary
 )
+
+private val FrenchOpenTheme = darkColorScheme(
+    primary = FOOrange,
+    onPrimary = Color.White,
+    secondary = FOGreen,
+    onSecondary = Color.White,
+    background = FOGreen,
+    onBackground = FOOrange,
+    surface = FOOrange,
+    onSurface = FOGreen
+    // Add other colors if necessary
+)
+
 
 @Composable
 fun TennisTimeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(), // todo use slam calendar for this
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        darkTheme -> FOColorScheme
-        else -> AOColorScheme
+        darkTheme -> FrenchOpenTheme
+        else -> AustralianOpenTheme
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
@@ -59,7 +58,7 @@ fun TennisTimeTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = TennisTypography,
         content = content
     )
 }

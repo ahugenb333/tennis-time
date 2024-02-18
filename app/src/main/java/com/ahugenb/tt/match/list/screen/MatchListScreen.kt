@@ -1,30 +1,41 @@
 package com.ahugenb.tt.match.list.screen
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -36,7 +47,6 @@ import com.ahugenb.tt.match.MatchListUIState
 import com.ahugenb.tt.match.MatchViewModel
 import com.ahugenb.tt.match.detail.response.Statistic
 import com.ahugenb.tt.match.list.model.domain.Match
-import com.ahugenb.tt.match.list.model.domain.ServingState
 import com.ahugenb.tt.match.list.model.domain.SetScore
 
 @Composable
@@ -63,7 +73,12 @@ fun MatchListScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MatchList(matches: List<Match>, matchDetailState: MatchDetailUIState, onRefresh: () -> Unit, onMatchClicked: (String) -> Unit) {
+fun MatchList(
+    matches: List<Match>,
+    matchDetailState: MatchDetailUIState,
+    onRefresh: () -> Unit,
+    onMatchClicked: (String) -> Unit
+) {
     val pullToRefreshState = rememberPullToRefreshState()
     val selectedMatchId = rememberSaveable { mutableStateOf("") }
 
@@ -99,45 +114,92 @@ fun MatchList(matches: List<Match>, matchDetailState: MatchDetailUIState, onRefr
 }
 
 @Composable
-fun MatchItem(match: Match, selectedMatchId: String, matchDetailState: MatchDetailUIState, onMatchClicked: (String) -> Unit) {
+fun MatchItem(
+    match: Match,
+    selectedMatchId: String,
+    matchDetailState: MatchDetailUIState,
+    onMatchClicked: (String) -> Unit
+) {
+    // Expanded state for the card
+    val isExpanded = selectedMatchId == match.id
+    // Arrow rotation animation
+    val arrowRotationDegree by animateFloatAsState(targetValue = if (isExpanded) 180f else 0f,
+        label = ""
+    )
+
+    val cardElevation = CardDefaults.cardElevation(
+        defaultElevation = 4.dp,
+        pressedElevation = 8.dp,
+        focusedElevation = 4.dp,
+        hoveredElevation = 6.dp
+    )
+
     Card(
         modifier = Modifier
             .animateContentSize()
             .fillMaxWidth()
             .padding(8.dp)
-            .clickable { onMatchClicked(match.id) }
+            .clickable { onMatchClicked(match.id) },
+        elevation = cardElevation
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = "${match.tournament} - ${match.round}",
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = "${match.homePlayer} vs ${match.awayPlayer}")
-            Text(
-                text = "Serving: " +
-                        when (match.servingState) {
-                            ServingState.HOME_IS_SERVING -> match.homePlayer
-                            ServingState.AWAY_IS_SERVING -> match.awayPlayer
-                            ServingState.NONE -> "Coin Flip"
-                        }
-            )
-            Text(
-                text = "Surface: ${match.surface}"
-            )
-            Text(
-                text = "Current Set: ${match.currentSet}, " +
-                        "Scores: ${match.homeScore} - ${match.awayScore}",
-            )
-            Text(
-                text = "Live Home Betting Odds: ${match.liveHomeOdd}"
-            )
-            Text(
-                text = "Live Away Betting Odds: ${match.liveAwayOdd}"
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Sets: ${formatHomeSets(match.sets)} vs ${formatAwaySets(match.sets)}")
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Player names and match info in two columns
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = match.homePlayer,
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.Start
+                    )
+                    Text(
+                        text = "Sets: ${formatHomeSets(match.sets)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Start
+                    )
+                    Text(
+                        text = "Odds: ${match.liveHomeOdd}",
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.Start
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = match.awayPlayer,
+                        style = MaterialTheme.typography.titleMedium,
+                        textAlign = TextAlign.End
+                    )
+                    Text(
+                        text = "Sets: ${formatAwaySets(match.sets)}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.End
+                    )
+                    Text(
+                        text = "Odds: ${match.liveAwayOdd}",
+                        style = MaterialTheme.typography.bodySmall,
+                        textAlign = TextAlign.End
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                IconButton(
+                    onClick = { onMatchClicked(match.id) },
+                    modifier = Modifier
+                        .size(24.dp)
+                        .rotate(arrowRotationDegree)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowDropDown,
+                        contentDescription = "Expand or collapse match details"
+                    )
+                }
+            }
             if (match.id == selectedMatchId) {
                 when (matchDetailState) {
                     is MatchDetailUIState.Loading -> {
