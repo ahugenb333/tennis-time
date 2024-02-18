@@ -10,14 +10,21 @@ import kotlin.math.roundToInt
 class MatchListUtils {
     companion object {
         private fun Double.toAmericanOdds(): String {
+            // Check for extremely low decimal odds, which could indicate an error or an edge case.
+            if (this <= 1.01) return "-∞" // Indicating extremely high favoritism, practical limit.
+            if (this >= 1000.0) return "+∞" // Indicating extreme underdog, practical limit.
+
             return if (this > 2.0) {
                 // Underdog
-                val rounded = roundToNearest5((this - 1.0) * 100)
+                val value = (this - 1.0) * 100
+                val rounded = roundToNearest5(value)
                 "+$rounded"
             } else {
                 // Favorite
-                val rounded = roundToNearest5(100.0 / (this - 1.0))
-                "-${rounded}"
+                val value = 100.0 / (this - 1.0)
+                val rounded = roundToNearest5(value)
+                // Adding a safeguard for extremely high favorite values leading to negative infinity.
+                if (rounded <= -2147483640) "-∞" else "-$rounded"
             }
         }
 
@@ -74,35 +81,31 @@ class MatchListUtils {
                 updatedRound = "Qualifying"
             }
 
-            // Attempt to split the tournament string into city and country components.
-            val parts = tournament.removeSuffix(", Qualifying").split(", ").toMutableList()
-            if (parts.size > 1) {
-                // Attempt to identify and remove repeated city names.
-                val cityParts = parts[0].split(" ").toMutableList()
-                val midPoint = cityParts.size / 2
-                if (cityParts.size % 2 == 0) {
-                    val firstHalf = cityParts.subList(0, midPoint).joinToString(" ")
-                    val secondHalf = cityParts.subList(midPoint, cityParts.size).joinToString(" ")
-                    if (firstHalf == secondHalf) {
-                        parts[0] = firstHalf // Update to use only the first half if it's a repeat.
-                    }
-                }
-            }
-
-            val tournamentName = if (parts.isNotEmpty()) parts[0] else tournament
-            val location = if (parts.size > 1) parts[1] else ""
-
-            val finalName =
-                if (!tournamentName.contains(location)) {
-                    "$tournamentName, $location"
-                } else {
-                    tournamentName
-                }
-
             return Tournament(
-                name = finalName,
+                name = formatTournamentName(tournament),
                 round = updatedRound
             )
+        }
+
+        private fun formatTournamentName(input: String): String {
+            // Step 1: Clean up Qualifiers
+            var formattedName = input.removeSuffix(", Qualifying")
+
+            // Step 2: Split tournament name into segments
+            val words = formattedName.split(",", " ")
+
+            // Step 3: Detect and remove redundant city name
+            val distinctWords = words.distinct()
+            formattedName = distinctWords.joinToString(" ")
+
+            // Step 4: Basic cleanup
+            formattedName.replace(",,", ",")
+                .replace(", ,", ",")
+                .trimEnd(',')
+                .trim()
+
+            // Step 5: remove double space
+            return formattedName.replace("\\s+".toRegex(), " ")
         }
 
         private fun parseSetScores(homeScoreStr: String, awayScoreStr: String): SetScore {
