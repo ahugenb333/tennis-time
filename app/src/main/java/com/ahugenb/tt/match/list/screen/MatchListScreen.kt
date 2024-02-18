@@ -138,11 +138,34 @@ fun MatchItem(
         modifier = Modifier
             .animateContentSize()
             .fillMaxWidth()
-            .padding(8.dp)
+            .padding(4.dp)
             .clickable { onMatchClicked(match.id) },
         elevation = cardElevation
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Column {
+                Text(
+                    text = match.tournament.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = match.tournament.round,
+                    style = MaterialTheme.typography.titleSmall,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = match.surface,
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+
+        Column(modifier = Modifier.padding(start = 24.dp, end = 24.dp, top = 16.dp, bottom = 2.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -151,7 +174,7 @@ fun MatchItem(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = match.homePlayer,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.Start
                     )
                     Text(
@@ -165,10 +188,13 @@ fun MatchItem(
                         textAlign = TextAlign.Start
                     )
                 }
-                Column(modifier = Modifier.weight(1f)) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.End
+                ) {
                     Text(
                         text = match.awayPlayer,
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         textAlign = TextAlign.End
                     )
                     Text(
@@ -185,16 +211,18 @@ fun MatchItem(
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
+                horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
                     onClick = { onMatchClicked(match.id) },
                     modifier = Modifier
-                        .size(24.dp)
+                        .size(32.dp)
                         .rotate(arrowRotationDegree)
                 ) {
                     Icon(
+                        modifier = Modifier
+                            .size(32.dp),
                         imageVector = Icons.Default.ArrowDropDown,
                         contentDescription = "Expand or collapse match details"
                     )

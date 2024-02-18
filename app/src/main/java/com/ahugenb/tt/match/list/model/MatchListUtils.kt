@@ -3,6 +3,7 @@ package com.ahugenb.tt.match.list.model
 import com.ahugenb.tt.match.list.model.domain.Match
 import com.ahugenb.tt.match.list.model.domain.ServingState
 import com.ahugenb.tt.match.list.model.domain.SetScore
+import com.ahugenb.tt.match.list.model.domain.Tournament
 import com.ahugenb.tt.match.list.model.response.MatchResponse
 import kotlin.math.roundToInt
 
@@ -41,6 +42,9 @@ class MatchListUtils {
             // Determine serving state
             val servingState = getServingState(sets, firstToServe, currentSetInt)
 
+            // Parse tournament details
+            val parsedTournament = parseTournament(tournament, round)
+
             return Match(
                 id = id,
                 homePlayer = homePlayer,
@@ -50,13 +54,49 @@ class MatchListUtils {
                 servingState = servingState,
                 homeScore = player1Score,
                 awayScore = player2Score,
-                round = round,
-                tournament = tournament,
                 surface = surface,
+                tournament = parsedTournament,
                 liveHomeOdd = liveHomeOdd.toAmericanOdds(),
                 liveAwayOdd = liveAwayOdd.toAmericanOdds(),
                 initialHomeOdd = initialHomeOdd.toAmericanOdds(),
                 initialAwayOdd = initialAwayOdd.toAmericanOdds()
+            )
+        }
+
+        private fun parseTournament(tournament: String, round: String): Tournament {
+            var updatedRound = round
+            if (tournament.endsWith(", Qualifying")) {
+                updatedRound = "Qualifying"
+            }
+
+            // Attempt to split the tournament string into city and country components.
+            val parts = tournament.removeSuffix(", Qualifying").split(", ").toMutableList()
+            if (parts.size > 1) {
+                // Attempt to identify and remove repeated city names.
+                val cityParts = parts[0].split(" ").toMutableList()
+                val midPoint = cityParts.size / 2
+                if (cityParts.size % 2 == 0) {
+                    val firstHalf = cityParts.subList(0, midPoint).joinToString(" ")
+                    val secondHalf = cityParts.subList(midPoint, cityParts.size).joinToString(" ")
+                    if (firstHalf == secondHalf) {
+                        parts[0] = firstHalf // Update to use only the first half if it's a repeat.
+                    }
+                }
+            }
+
+            val tournamentName = if (parts.isNotEmpty()) parts[0] else tournament
+            val location = if (parts.size > 1) parts[1] else ""
+
+            val finalName =
+                if (!tournamentName.contains(location)) {
+                    "$tournamentName, $location"
+                } else {
+                    tournamentName
+                }
+
+            return Tournament(
+                name = finalName,
+                round = updatedRound
             )
         }
 

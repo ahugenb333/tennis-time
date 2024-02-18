@@ -11,9 +11,8 @@ data class Match(
     val servingState: ServingState,
     val homeScore: String,
     val awayScore: String,
-    val round: String,
-    val tournament: String,
     val surface: String,
+    val tournament: Tournament,
     val liveHomeOdd: String,
     val liveAwayOdd: String,
     val initialHomeOdd: String,
@@ -26,6 +25,11 @@ data class SetScore(
     val wentToTieBreak: Boolean,
     val tieBreakLoserScore: Int?,
     val totalTieBreakPoints: Int?
+)
+
+data class Tournament(
+    val name: String,
+    val round: String
 )
 
 enum class ServingState {
