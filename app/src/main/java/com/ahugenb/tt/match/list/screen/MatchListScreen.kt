@@ -372,7 +372,9 @@ fun MatchStatistics(statistic: Statistic?) {
 
             // Create a row for each statistic
             statisticsMap.forEach { (label, values) ->
-                StatisticRow(label, values.first, values.second)
+                if (values.first != null && values.second != null) {
+                    StatisticRow(label, values.first, values.second)
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp)) // Add space after the statistics end
@@ -381,7 +383,8 @@ fun MatchStatistics(statistic: Statistic?) {
 }
 
 @Composable
-fun StatisticRow(label: String, playerOneValue: String, playerTwoValue: String) {
+fun StatisticRow(label: String, playerOneValue: String?, playerTwoValue: String?) {
+    if (playerOneValue == null || playerTwoValue == null) return
     Row(
         modifier = Modifier
             .fillMaxWidth()
