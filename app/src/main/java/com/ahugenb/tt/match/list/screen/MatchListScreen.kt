@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -59,18 +60,13 @@ fun MatchListScreen(
     val matchDetailState = viewModel.matchDetailUIState.collectAsStateWithLifecycle().value
 
     when (matchListState) {
-        MatchListUIState.Empty -> {
-            Text("No Live Match Data Available")
-        }
-
-        MatchListUIState.Loading -> {
+        is MatchListUIState.Loading -> {
             BouncingBallLoader()
         }
-
-        is MatchListUIState.All -> {
-            MatchList(
-                matches = matchListState.matches,
-                matchDetailState,
+        else -> {
+            PullToRefreshContent(
+                matchListState = matchListState,
+                matchDetailState = matchDetailState,
                 viewModel::fetchMatches,
                 viewModel::fetchMatchDetails
             )
@@ -78,45 +74,94 @@ fun MatchListScreen(
     }
 }
 
+//enables refreshing on empty state as well as match list state
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MatchList(
-    matches: List<Match>,
+fun PullToRefreshContent(
+    matchListState: MatchListUIState,
     matchDetailState: MatchDetailUIState,
     onRefresh: () -> Unit,
     onMatchClicked: (String) -> Unit
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
-    val selectedMatchId = rememberSaveable { mutableStateOf("") }
 
     if (pullToRefreshState.isRefreshing) {
         LaunchedEffect(key1 = true) {
             onRefresh()
         }
     }
+
     Box(Modifier.nestedScroll(pullToRefreshState.nestedScrollConnection)) {
-        LazyColumn(
-            modifier = Modifier.fillMaxHeight(),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(matches) { match ->
-                MatchItem(match, selectedMatchId.value, matchDetailState, onMatchClicked = { id ->
-                    if (id == selectedMatchId.value) {
-                        //collapse re-clicked item
-                        selectedMatchId.value = ""
-                    } else {
-                        //expand item
-                        selectedMatchId.value = id
-                    }
-                    onMatchClicked(id)
-                })
+        when(matchListState) {
+            is MatchListUIState.Empty -> {
+                EmptyState()
             }
+            is MatchListUIState.All -> {
+                MatchList(
+                    matchListState.matches,
+                    matchDetailState,
+                    onMatchClicked
+                )
+            }
+            else -> { }
         }
         PullToRefreshContainer(
-            modifier = Modifier.align(Alignment.TopCenter),
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .nestedScroll(pullToRefreshState.nestedScrollConnection),
             state = pullToRefreshState
         )
+    }
+}
+
+@Composable
+fun EmptyState() {
+    //potentially hacky, would normally be Column but it needs to be scrollable to trigger the Pull to refresh
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        items(1) {
+            Text(
+                text = "No Live Match Data Available",
+                style = MaterialTheme.typography.displayLarge,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = "(Pull down to check again)",
+                style = MaterialTheme.typography.displaySmall,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+@Composable
+fun MatchList(
+    matches: List<Match>,
+    matchDetailState: MatchDetailUIState,
+    onMatchClicked: (String) -> Unit
+) {
+    val selectedMatchId = rememberSaveable { mutableStateOf("") }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxHeight(),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(matches) { match ->
+            MatchItem(match, selectedMatchId.value, matchDetailState, onMatchClicked = { id ->
+                if (id == selectedMatchId.value) {
+                    //collapse re-clicked item
+                    selectedMatchId.value = ""
+                } else {
+                    //expand item
+                    selectedMatchId.value = id
+                }
+                onMatchClicked(id)
+            })
+        }
     }
 }
 
