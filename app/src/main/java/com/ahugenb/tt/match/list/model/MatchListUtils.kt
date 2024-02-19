@@ -66,6 +66,7 @@ class MatchListUtils {
                 liveHomeOdd = liveHomeOdd.toAmericanOdds(),
                 liveAwayOdd = liveAwayOdd.toAmericanOdds(),
                 initialHomeOdd = initialHomeOdd.toAmericanOdds(),
+                isDoubles = homePlayer.parseDoublesName() != homePlayer,
                 initialAwayOdd = initialAwayOdd.toAmericanOdds()
             )
         }
@@ -77,42 +78,37 @@ class MatchListUtils {
 
         private fun parseTournament(tournament: String, round: String): Tournament {
             var updatedRound = round
-            if (tournament.endsWith(", Qualifying")) {
+            if (tournament.contains("Qualifying")) {
                 updatedRound = "Qualifying"
             }
 
             return Tournament(
-                name = formatTournamentName(tournament),
+                name = formatTournamentName(tournament.replace("Qualifying", "")),
                 round = updatedRound
             )
         }
 
         private fun formatTournamentName(input: String): String {
-            // Step 1: Clean up Qualifiers
-            var formattedName = input.removeSuffix(", Qualifying")
+            var formattedName = input
 
-            // Step 2: Split tournament name into segments
             val words = formattedName.split(",", " ")
 
-            // Step 3: Detect and remove redundant city name
             val distinctWords = words.distinct()
             formattedName = distinctWords.joinToString(" ")
 
-            // Step 4: Basic cleanup
             formattedName.replace(",,", ",")
                 .replace(", ,", ",")
                 .trimEnd(',')
                 .trim()
 
-            // Step 5: remove double space
             return formattedName.replace("\\s+".toRegex(), " ")
         }
 
         private fun parseSetScores(homeScoreStr: String, awayScoreStr: String): SetScore {
             val wentToTieBreak = homeScoreStr.contains("(") || awayScoreStr.contains("(")
 
-            val homeGames = homeScoreStr.filter { it.isDigit() }.toIntOrNull() ?: 0
-            val awayGames = awayScoreStr.filter { it.isDigit() }.toIntOrNull() ?: 0
+            val homeGames = parseGames(scoreString = homeScoreStr)
+            val awayGames = parseGames(scoreString = awayScoreStr)
 
             var tieBreakLoserScore: Int? = null
             var totalTiebreakPoints: Int? = null
@@ -135,6 +131,15 @@ class MatchListUtils {
                 totalTieBreakPoints = totalTiebreakPoints
             )
         }
+
+        private fun parseGames(scoreString: String): Int {
+            return if (scoreString == "None" || scoreString.isEmpty()) {
+                0
+            } else {
+                scoreString[0].digitToInt()
+            }
+        }
+
         private fun getServingState(
             sets: List<SetScore>,
             firstToServe: Int?,

@@ -17,6 +17,7 @@ data class Match(
     val liveAwayOdd: String,
     val initialHomeOdd: String,
     val initialAwayOdd: String,
+    val isDoubles: Boolean,
     var statistic: Statistic? = null
 )
 data class SetScore(

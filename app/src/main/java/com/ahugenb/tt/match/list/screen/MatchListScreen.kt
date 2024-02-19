@@ -171,8 +171,8 @@ fun MatchItem(
                 )
                 val sets = formatSets(match.sets)
                 Text(
-                    text = "$sets | ${match.homeScore} - ${match.awayScore}",
-                    style = MaterialTheme.typography.titleSmall,
+                    text = "$sets | ${match.homeScore}-${match.awayScore}",
+                    style = MaterialTheme.typography.titleMedium,
                     textAlign = TextAlign.Center
                 )
             }
@@ -182,7 +182,7 @@ fun MatchItem(
             modifier = Modifier.padding(
                 start = 12.dp,
                 end = 12.dp,
-                top = 12.dp,
+                top = 2.dp,
                 bottom = 2.dp
             )
         ) {
@@ -370,7 +370,7 @@ fun StatisticRow(label: String, playerOneValue: String, playerTwoValue: String) 
 
 private fun formatSets(sets: List<SetScore>): String {
     return sets.joinToString {
-        if (it.tieBreakLoserScore != null) {
+        if (it.wentToTieBreak) {
             val homePlayerWon = it.gamesHomePlayer > it.gamesAwayPlayer
             if (homePlayerWon) {
                 "${it.gamesHomePlayer}-${it.gamesAwayPlayer}(${it.tieBreakLoserScore})"
