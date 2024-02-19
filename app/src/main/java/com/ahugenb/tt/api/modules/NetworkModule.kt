@@ -33,7 +33,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://ultimate-tennis1.p.rapidapi.com/")
+            .baseUrl("https://zylalabs.com/api/961/live+tennis+api/")
             .addConverterFactory(GsonConverterFactory.create())
             .client(okHttpClient)
             .build()
