@@ -1,4 +1,6 @@
-package com.ahugenb.tt.match.list.domain
+package com.ahugenb.tt.match.list.model.domain
+
+import com.ahugenb.tt.match.list.model.response.Statistic
 
 data class Match(
     val id: String,
@@ -6,12 +8,17 @@ data class Match(
     val awayPlayer: String,
     val sets: List<SetScore>,
     val currentSet: Int,
-    val servingState: ServingState, // This will be determined based on the logic we implement
+    val servingState: ServingState,
     val homeScore: String,
     val awayScore: String,
-    val round: String,
-    val tournament: String,
-    val surface: String
+    val surface: String,
+    val tournament: Tournament,
+    val liveHomeOdd: String,
+    val liveAwayOdd: String,
+    val initialHomeOdd: String,
+    val initialAwayOdd: String,
+    val isDoubles: Boolean,
+    var statistic: Statistic? = null
 )
 data class SetScore(
     val gamesHomePlayer: Int,
@@ -19,6 +26,11 @@ data class SetScore(
     val wentToTieBreak: Boolean,
     val tieBreakLoserScore: Int?,
     val totalTieBreakPoints: Int?
+)
+
+data class Tournament(
+    val name: String,
+    val round: String
 )
 
 enum class ServingState {

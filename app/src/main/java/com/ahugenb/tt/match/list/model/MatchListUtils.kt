@@ -1,12 +1,37 @@
-package com.ahugenb.tt.match.list
+package com.ahugenb.tt.match.list.model
 
-import com.ahugenb.tt.match.list.domain.Match
-import com.ahugenb.tt.match.list.domain.ServingState
-import com.ahugenb.tt.match.list.domain.SetScore
-import com.ahugenb.tt.match.list.response.MatchResponse
+import com.ahugenb.tt.match.list.model.domain.Match
+import com.ahugenb.tt.match.list.model.domain.ServingState
+import com.ahugenb.tt.match.list.model.domain.SetScore
+import com.ahugenb.tt.match.list.model.domain.Tournament
+import com.ahugenb.tt.match.list.model.response.MatchResponse
+import kotlin.math.roundToInt
 
 class MatchListUtils {
     companion object {
+        private fun Double.toAmericanOdds(): String {
+            // Check for extremely low decimal odds, which could indicate an error or an edge case.
+            if (this <= 1.01) return "-∞" // Indicating extremely high favoritism, practical limit.
+            if (this >= 1000.0) return "+∞" // Indicating extreme underdog, practical limit.
+
+            return if (this > 2.0) {
+                // Underdog
+                val value = (this - 1.0) * 100
+                val rounded = roundToNearest5(value)
+                "+$rounded"
+            } else {
+                // Favorite
+                val value = 100.0 / (this - 1.0)
+                val rounded = roundToNearest5(value)
+                // Adding a safeguard for extremely high favorite values leading to negative infinity.
+                if (rounded <= -2147483640) "-∞" else "-$rounded"
+            }
+        }
+
+        private fun roundToNearest5(num: Double): Int {
+            return (num / 5.0).roundToInt() * 5
+        }
+
         fun MatchResponse.toDomainMatch(): Match {
             // Parse set scores and handle tiebreak logic within each set
             val sets = listOf(
@@ -24,26 +49,66 @@ class MatchListUtils {
             // Determine serving state
             val servingState = getServingState(sets, firstToServe, currentSetInt)
 
+            // Parse tournament details
+            val parsedTournament = parseTournament(tournament, round)
+
             return Match(
                 id = id,
-                homePlayer = homePlayer,
-                awayPlayer = awayPlayer,
+                homePlayer = homePlayer.parseDoublesName(),
+                awayPlayer = awayPlayer.parseDoublesName(),
                 sets = sets,
                 currentSet = currentSetInt,
                 servingState = servingState,
                 homeScore = player1Score,
                 awayScore = player2Score,
-                round = round,
-                tournament = tournament,
-                surface = surface
+                surface = surface,
+                tournament = parsedTournament,
+                liveHomeOdd = liveHomeOdd.toAmericanOdds(),
+                liveAwayOdd = liveAwayOdd.toAmericanOdds(),
+                initialHomeOdd = initialHomeOdd.toAmericanOdds(),
+                isDoubles = homePlayer.parseDoublesName() != homePlayer,
+                initialAwayOdd = initialAwayOdd.toAmericanOdds()
             )
+        }
+
+        private fun String.parseDoublesName(): String {
+            if (!this.contains(" / ")) return this
+            return this.replace(" / ", "\n")
+        }
+
+        private fun parseTournament(tournament: String, round: String): Tournament {
+            var updatedRound = round
+            if (tournament.contains("Qualifying")) {
+                updatedRound = "Qualifying"
+            }
+
+            return Tournament(
+                name = formatTournamentName(tournament.replace("Qualifying", "")),
+                round = updatedRound
+            )
+        }
+
+        private fun formatTournamentName(input: String): String {
+            var formattedName = input
+
+            val words = formattedName.split(",", " ")
+
+            val distinctWords = words.distinct()
+            formattedName = distinctWords.joinToString(" ")
+
+            formattedName.replace(",,", ",")
+                .replace(", ,", ",")
+                .trimEnd(',')
+                .trim()
+
+            return formattedName.replace("\\s+".toRegex(), " ")
         }
 
         private fun parseSetScores(homeScoreStr: String, awayScoreStr: String): SetScore {
             val wentToTieBreak = homeScoreStr.contains("(") || awayScoreStr.contains("(")
 
-            val homeGames = homeScoreStr.filter { it.isDigit() }.toIntOrNull() ?: 0
-            val awayGames = awayScoreStr.filter { it.isDigit() }.toIntOrNull() ?: 0
+            val homeGames = parseGames(scoreString = homeScoreStr)
+            val awayGames = parseGames(scoreString = awayScoreStr)
 
             var tieBreakLoserScore: Int? = null
             var totalTiebreakPoints: Int? = null
@@ -66,6 +131,15 @@ class MatchListUtils {
                 totalTieBreakPoints = totalTiebreakPoints
             )
         }
+
+        private fun parseGames(scoreString: String): Int {
+            return if (scoreString == "None" || scoreString.isEmpty()) {
+                0
+            } else {
+                scoreString[0].digitToInt()
+            }
+        }
+
         private fun getServingState(
             sets: List<SetScore>,
             firstToServe: Int?,
