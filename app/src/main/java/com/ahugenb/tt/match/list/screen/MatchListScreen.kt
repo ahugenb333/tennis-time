@@ -96,7 +96,17 @@ fun MatchListScreen() {
 
     when (matchListState) {
         is MatchListUIState.Loading -> {
-            BouncingBallLoader()
+            Scaffold(
+                topBar = { DummyTopBar() }
+            ) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .background(MaterialTheme.colorScheme.primary)
+                ) {
+                    BouncingBallLoader()
+                }
+            }
         }
 
         is MatchListUIState.All -> {
@@ -149,6 +159,18 @@ fun MatchListScreen() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+
+@Composable
+fun DummyTopBar() {
+    CenterAlignedTopAppBar(
+        title = { TitleText() },
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.secondary,
+            scrolledContainerColor = MaterialTheme.colorScheme.secondary
+        )
+    )
+}
 @Composable
 fun TitleText() {
     Column(
