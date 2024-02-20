@@ -4,6 +4,7 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
@@ -572,36 +574,49 @@ fun CenteredProgressIndicator() {
 @Composable
 fun MatchStatistics(statistic: Statistic?) {
     if (statistic != null) {
-        Column {
-            Spacer(modifier = Modifier.height(8.dp)) // Add space before the statistics start
+        Spacer(modifier = Modifier.height(8.dp))
+        Box(
+            modifier = Modifier
+                .border(1.dp, MaterialTheme.colorScheme.onTertiaryContainer, shape = RoundedCornerShape(4.dp))
+        ) {
+            Column {
 
-            // Here we define the labels and the corresponding values for each player
-            val statisticsMap = listOf(
-                "Aces" to (statistic.p1Aces to statistic.p2Aces),
-                "Break points converted" to (statistic.p1BreakPointsConverted to statistic.p2BreakPointsConverted),
-                "Break points saved" to (statistic.p1BreakPointsSaved to statistic.p2BreakPointsSaved),
-                "Double faults" to (statistic.p1DoubleFaults to statistic.p2DoubleFaults),
-                "First serve return points" to (statistic.p1FirstServeReturnPoints to statistic.p2FirstServeReturnPoints),
-                "Max points in a row" to (statistic.p1MaxPointsInARow to statistic.p2MaxPointsInARow),
-                "Receiver points won" to (statistic.p1ReceiverPointsWon to statistic.p2ReceiverPointsWon),
-                "Return games played" to (statistic.p1ReturnGamesPlayed to statistic.p2ReturnGamesPlayed),
-                "Second serve return points" to (statistic.p1SecondServeReturnPoints to statistic.p2SecondServeReturnPoints),
-                "Service games played" to (statistic.p1ServiceGamesPlayed to statistic.p2ServiceGamesPlayed),
-                "Service games won" to (statistic.p1ServiceGamesWon to statistic.p2ServiceGamesWon),
-                "Service points won" to (statistic.p1ServicePointsWon to statistic.p2ServicePointsWon),
-                "Tiebreaks" to (statistic.p1Tiebreaks to statistic.p2Tiebreaks),
-                "Total points won" to (statistic.p1Total to statistic.p2Total)
-            )
+                // Here we define the labels and the corresponding values for each player
+                val statisticsMap = listOf(
+                    "Aces" to (statistic.p1Aces to statistic.p2Aces),
+                    "Break points converted" to (statistic.p1BreakPointsConverted to statistic.p2BreakPointsConverted),
+                    "Break points saved" to (statistic.p1BreakPointsSaved to statistic.p2BreakPointsSaved),
+                    "Double faults" to (statistic.p1DoubleFaults to statistic.p2DoubleFaults),
+                    "First serve return points" to (statistic.p1FirstServeReturnPoints to statistic.p2FirstServeReturnPoints),
+                    "Max points in a row" to (statistic.p1MaxPointsInARow to statistic.p2MaxPointsInARow),
+                    "Receiver points won" to (statistic.p1ReceiverPointsWon to statistic.p2ReceiverPointsWon),
+                    "Return games played" to (statistic.p1ReturnGamesPlayed to statistic.p2ReturnGamesPlayed),
+                    "Second serve return points" to (statistic.p1SecondServeReturnPoints to statistic.p2SecondServeReturnPoints),
+                    "Service games played" to (statistic.p1ServiceGamesPlayed to statistic.p2ServiceGamesPlayed),
+                    "Service games won" to (statistic.p1ServiceGamesWon to statistic.p2ServiceGamesWon),
+                    "Service points won" to (statistic.p1ServicePointsWon to statistic.p2ServicePointsWon),
+                    "Tiebreaks" to (statistic.p1Tiebreaks to statistic.p2Tiebreaks),
+                    "Total points won" to (statistic.p1Total to statistic.p2Total)
+                )
 
-            // Create a row for each statistic
-            statisticsMap.forEach { (label, values) ->
-                if (values.first != null && values.second != null) {
-                    StatisticRow(label, values.first, values.second)
+                // Create a row for each statistic
+                statisticsMap.forEachIndexed { index,  (label, values) ->
+                    if (values.first != null && values.second != null) {
+                        if (index > 0) {
+                            // Add a colored spacer line between items
+                            Spacer(modifier = Modifier
+                                .background(MaterialTheme.colorScheme.onTertiaryContainer)
+                                .height(1.dp)
+                                .fillMaxWidth(),
+                            )
+                        }
+                        StatisticRow(label, values.first, values.second)
+                    }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(8.dp)) // Add space after the statistics end
+            }
         }
+        Spacer(modifier = Modifier.height(8.dp))
     }
 }
 
@@ -624,7 +639,7 @@ fun StatisticRow(label: String, playerOneValue: String?, playerTwoValue: String?
         Text(
             text = label,
             modifier = Modifier
-                .weight(1f),
+                .weight(2f),
             style = MaterialTheme.typography.bodySmall,
             textAlign = TextAlign.Center
         )
