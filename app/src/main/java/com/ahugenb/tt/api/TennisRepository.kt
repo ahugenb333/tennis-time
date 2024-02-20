@@ -1,7 +1,7 @@
 package com.ahugenb.tt.api
 
 import android.util.Log
-import com.ahugenb.tt.match.detail.response.Statistic
+import com.ahugenb.tt.match.list.model.response.Statistic
 import com.ahugenb.tt.match.list.model.MatchListUtils.Companion.toDomainMatch
 import com.ahugenb.tt.match.list.model.domain.Match
 import kotlinx.coroutines.flow.Flow

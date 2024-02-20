@@ -1,6 +1,6 @@
 package com.ahugenb.tt.match.list.model.domain
 
-import com.ahugenb.tt.match.detail.response.Statistic
+import com.ahugenb.tt.match.list.model.response.Statistic
 
 data class Match(
     val id: String,

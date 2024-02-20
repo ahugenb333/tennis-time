@@ -4,8 +4,8 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahugenb.tt.api.TennisRepository
-import com.ahugenb.tt.match.detail.response.Statistic
 import com.ahugenb.tt.match.list.model.domain.Match
+import com.ahugenb.tt.match.list.model.response.Statistic
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

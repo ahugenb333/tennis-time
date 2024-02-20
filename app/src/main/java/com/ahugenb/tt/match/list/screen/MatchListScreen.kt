@@ -10,12 +10,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -23,6 +25,8 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,7 +38,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -47,10 +53,22 @@ import com.ahugenb.tt.common.BouncingBallLoader
 import com.ahugenb.tt.match.MatchDetailUIState
 import com.ahugenb.tt.match.MatchListUIState
 import com.ahugenb.tt.match.MatchViewModel
-import com.ahugenb.tt.match.detail.response.Statistic
 import com.ahugenb.tt.match.list.model.domain.Match
 import com.ahugenb.tt.match.list.model.domain.ServingState
 import com.ahugenb.tt.match.list.model.domain.SetScore
+import com.ahugenb.tt.match.list.model.response.Statistic
+
+enum class DropdownOption(val label: String) {
+    ALL("All"),
+    SINGLES("Singles"),
+    DOUBLES("Doubles")
+}
+
+val dropdownList = listOf(
+    DropdownOption.ALL,
+    DropdownOption.SINGLES,
+    DropdownOption.DOUBLES
+)
 
 @Composable
 fun MatchListScreen(
@@ -59,17 +77,86 @@ fun MatchListScreen(
     val matchListState = viewModel.matchListUIState.collectAsStateWithLifecycle().value
     val matchDetailState = viewModel.matchDetailUIState.collectAsStateWithLifecycle().value
 
+    //persist dropdown selection
+    val dropdownSelection = rememberSaveable { mutableStateOf(dropdownList[0]) }
+    //used to close the expanded item if we select a different dropdown option
+    val didDropdownChange = rememberSaveable { mutableStateOf(false) }
+
+    val forgetItem = didDropdownChange.value
+    if (forgetItem) {
+        //reset for next time
+        didDropdownChange.value = false
+    }
+
     when (matchListState) {
         is MatchListUIState.Loading -> {
             BouncingBallLoader()
         }
+
+        is MatchListUIState.All -> {
+            Column {
+                MatchDropdownMenu(
+                    currentSelection = dropdownSelection.value,
+                    onDropdownOptionSelected =  { selected ->
+                        didDropdownChange.value = dropdownSelection.value != selected
+                        dropdownSelection.value = selected
+                    }
+                )
+                PullToRefreshContent(
+                    matchListState = matchListState,
+                    matchDetailState = matchDetailState,
+                    dropdownSelection.value,
+                    forgetItem,
+                    viewModel::fetchMatches,
+                    viewModel::fetchMatchDetails
+                )
+            }
+        }
+
         else -> {
             PullToRefreshContent(
                 matchListState = matchListState,
                 matchDetailState = matchDetailState,
+                dropdownSelection.value,
+                didDropdownChange.value,
                 viewModel::fetchMatches,
                 viewModel::fetchMatchDetails
             )
+        }
+    }
+}
+
+@Composable
+fun MatchDropdownMenu(currentSelection: DropdownOption, onDropdownOptionSelected: (DropdownOption) -> Unit) {
+    //don't persist dropdown expanded
+    var dropdownExpanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier
+            .wrapContentHeight()
+            .wrapContentWidth(),
+        horizontalArrangement = Arrangement.End
+    ) {
+        Text(
+            style = MaterialTheme.typography.bodyLarge,
+            text = currentSelection.label,
+            modifier = Modifier
+                .clickable { dropdownExpanded = true }
+                .padding(16.dp)
+        )
+        DropdownMenu(
+            expanded = dropdownExpanded,
+            onDismissRequest = { dropdownExpanded = false }
+        ) {
+            dropdownList.forEach { option ->
+                DropdownMenuItem(
+                    text = { Text(option.label) },
+                    onClick = {
+                        onDropdownOptionSelected(option)
+                        dropdownExpanded = false
+                    }
+                )
+            }
         }
     }
 }
@@ -80,37 +167,45 @@ fun MatchListScreen(
 fun PullToRefreshContent(
     matchListState: MatchListUIState,
     matchDetailState: MatchDetailUIState,
+    dropdownSelection: DropdownOption,
+    didDropdownChange: Boolean,
     onRefresh: () -> Unit,
     onMatchClicked: (String) -> Unit
 ) {
     val pullToRefreshState = rememberPullToRefreshState()
-
     if (pullToRefreshState.isRefreshing) {
         LaunchedEffect(key1 = true) {
             onRefresh()
         }
     }
 
-    Box(Modifier.nestedScroll(pullToRefreshState.nestedScrollConnection)) {
-        when(matchListState) {
-            is MatchListUIState.Empty -> {
-                EmptyState()
+    Row {
+        Box(Modifier.nestedScroll(pullToRefreshState.nestedScrollConnection)) {
+            when (matchListState) {
+                is MatchListUIState.Empty -> {
+                    EmptyState()
+                }
+
+                is MatchListUIState.All -> {
+                    MatchList(
+                        matchListState.matches,
+                        matchDetailState,
+                        dropdownSelection,
+                        didDropdownChange,
+                        onMatchClicked
+                    )
+                }
+
+                else -> {}
             }
-            is MatchListUIState.All -> {
-                MatchList(
-                    matchListState.matches,
-                    matchDetailState,
-                    onMatchClicked
-                )
-            }
-            else -> { }
+            PullToRefreshContainer(
+                modifier = Modifier
+                    .offset(y = (-50).dp)
+                    .align(Alignment.TopCenter)
+                    .nestedScroll(pullToRefreshState.nestedScrollConnection),
+                state = pullToRefreshState
+            )
         }
-        PullToRefreshContainer(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .nestedScroll(pullToRefreshState.nestedScrollConnection),
-            state = pullToRefreshState
-        )
     }
 }
 
@@ -141,16 +236,34 @@ fun EmptyState() {
 fun MatchList(
     matches: List<Match>,
     matchDetailState: MatchDetailUIState,
+    dropdownSelection: DropdownOption,
+    didDropdownChange: Boolean,
     onMatchClicked: (String) -> Unit
 ) {
     val selectedMatchId = rememberSaveable { mutableStateOf("") }
+    if (didDropdownChange) {
+        selectedMatchId.value = ""
+    }
 
+    val displayMatches = when (dropdownSelection) {
+        DropdownOption.ALL -> {
+            matches
+        }
+
+        DropdownOption.DOUBLES -> {
+            matches.filter { it.isDoubles }
+        }
+
+        DropdownOption.SINGLES -> {
+            matches.filter { !it.isDoubles }
+        }
+    }
     LazyColumn(
-        modifier = Modifier.fillMaxHeight(),
+        modifier = Modifier.fillMaxWidth(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(matches) { match ->
+        items(displayMatches) { match ->
             MatchItem(match, selectedMatchId.value, matchDetailState, onMatchClicked = { id ->
                 if (id == selectedMatchId.value) {
                     //collapse re-clicked item
