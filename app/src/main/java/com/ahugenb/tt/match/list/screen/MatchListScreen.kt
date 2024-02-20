@@ -181,21 +181,44 @@ fun MatchDropdownMenu(
     //don't persist dropdown expanded
     var dropdownExpanded by remember { mutableStateOf(false) }
 
+    val arrowRotationDegree by animateFloatAsState(
+        targetValue = if (dropdownExpanded) 180f else 0f,
+        label = ""
+    )
+
     Row(
         modifier = Modifier
             .wrapContentHeight()
             .wrapContentWidth()
+            .clickable { dropdownExpanded = true },
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            style = MaterialTheme.typography.bodyLarge,
-            text = currentSelection.label,
-            color = MaterialTheme.colorScheme.primary,
+        Column {
+            IconButton(
+                onClick = { dropdownExpanded = !dropdownExpanded },
+                modifier = Modifier
+                    .size(28.dp)
+                    .rotate(arrowRotationDegree)
+            ) {
+                Icon(
+                    modifier = Modifier
+                        .size(28.dp),
+                    imageVector = Icons.Default.ArrowDropDown,
+                    contentDescription = "Expand or collapse action bar"
+                )
+            }
+        }
+        Column {
+            Text(
+                style = MaterialTheme.typography.bodyLarge,
+                text = currentSelection.label,
+                color = MaterialTheme.colorScheme.primary,
 
-            modifier = Modifier
-                .wrapContentWidth(Alignment.End)
-                .clickable { dropdownExpanded = true }
-                .padding(16.dp)
-        )
+                modifier = Modifier
+                    .wrapContentWidth(Alignment.End)
+                    .padding(16.dp)
+            )
+        }
         DropdownMenu(
             expanded = dropdownExpanded,
             onDismissRequest = { dropdownExpanded = false },
