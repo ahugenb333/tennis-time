@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -31,9 +32,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,12 +74,14 @@ val dropdownList = listOf(
     DropdownOption.DOUBLES
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MatchListScreen(
-    viewModel: MatchViewModel = hiltViewModel()
-) {
+fun MatchListScreen() {
+    val viewModel: MatchViewModel = hiltViewModel()
     val matchListState = viewModel.matchListUIState.collectAsStateWithLifecycle().value
     val matchDetailState = viewModel.matchDetailUIState.collectAsStateWithLifecycle().value
+
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
 
     //persist dropdown selection
     val dropdownSelection = rememberSaveable { mutableStateOf(dropdownList[0]) }
@@ -94,22 +100,36 @@ fun MatchListScreen(
         }
 
         is MatchListUIState.All -> {
-            Column {
-                MatchDropdownMenu(
-                    currentSelection = dropdownSelection.value,
-                    onDropdownOptionSelected =  { selected ->
-                        didDropdownChange.value = dropdownSelection.value != selected
-                        dropdownSelection.value = selected
-                    }
-                )
-                PullToRefreshContent(
-                    matchListState = matchListState,
-                    matchDetailState = matchDetailState,
-                    dropdownSelection.value,
-                    forgetItem,
-                    viewModel::fetchMatches,
-                    viewModel::fetchMatchDetails
-                )
+            Scaffold(
+                topBar = {
+                    CenterAlignedTopAppBar(
+                        title = { TitleText() },
+                        actions = {
+                            MatchDropdownMenu(
+                                currentSelection = dropdownSelection.value,
+                                onDropdownOptionSelected = { selected ->
+                                    didDropdownChange.value = dropdownSelection.value != selected
+                                    dropdownSelection.value = selected
+                                }
+                            )
+                        },
+                        scrollBehavior = scrollBehavior,
+                    )
+                },
+                modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+            ) { innerPadding ->
+                Column(
+                    modifier = Modifier.padding(innerPadding)
+                ) {
+                    PullToRefreshContent(
+                        matchListState = matchListState,
+                        matchDetailState = matchDetailState,
+                        dropdownSelection = dropdownSelection.value,
+                        didDropdownChange = forgetItem,
+                        onRefresh = viewModel::fetchMatches,
+                        onMatchClicked = viewModel::fetchMatchDetails
+                    )
+                }
             }
         }
 
@@ -117,36 +137,62 @@ fun MatchListScreen(
             PullToRefreshContent(
                 matchListState = matchListState,
                 matchDetailState = matchDetailState,
-                dropdownSelection.value,
-                didDropdownChange.value,
-                viewModel::fetchMatches,
-                viewModel::fetchMatchDetails
+                dropdownSelection = dropdownSelection.value,
+                onRefresh = viewModel::fetchMatches,
+                onMatchClicked = viewModel::fetchMatchDetails
             )
         }
     }
 }
 
 @Composable
-fun MatchDropdownMenu(currentSelection: DropdownOption, onDropdownOptionSelected: (DropdownOption) -> Unit) {
+fun TitleText() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row {
+            Text(
+                textAlign = TextAlign.Center,
+                text = "Live Matches",
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+        Row {
+            Text(
+                textAlign = TextAlign.Center,
+                text = "(pull down to refresh)",
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Composable
+fun MatchDropdownMenu(
+    currentSelection: DropdownOption,
+    onDropdownOptionSelected: (DropdownOption) -> Unit
+) {
     //don't persist dropdown expanded
     var dropdownExpanded by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
             .wrapContentHeight()
-            .wrapContentWidth(),
-        horizontalArrangement = Arrangement.End
+            .wrapContentWidth()
     ) {
         Text(
             style = MaterialTheme.typography.bodyLarge,
             text = currentSelection.label,
+
             modifier = Modifier
+                .wrapContentWidth(Alignment.End)
                 .clickable { dropdownExpanded = true }
                 .padding(16.dp)
         )
         DropdownMenu(
             expanded = dropdownExpanded,
-            onDismissRequest = { dropdownExpanded = false }
+            onDismissRequest = { dropdownExpanded = false },
+            modifier = Modifier.wrapContentWidth(Alignment.End)
         ) {
             dropdownList.forEach { option ->
                 DropdownMenuItem(
@@ -168,7 +214,7 @@ fun PullToRefreshContent(
     matchListState: MatchListUIState,
     matchDetailState: MatchDetailUIState,
     dropdownSelection: DropdownOption,
-    didDropdownChange: Boolean,
+    didDropdownChange: Boolean = false,
     onRefresh: () -> Unit,
     onMatchClicked: (String) -> Unit
 ) {
