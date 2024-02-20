@@ -20,7 +20,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
@@ -42,6 +43,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -332,12 +334,14 @@ fun EmptyState() {
             Text(
                 text = "No Live Match Data Available",
                 style = MaterialTheme.typography.displayLarge,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.secondary
             )
             Text(
                 text = "(Pull down to check again)",
                 style = MaterialTheme.typography.displaySmall,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.secondary
             )
         }
     }
@@ -352,6 +356,16 @@ fun MatchList(
     onMatchClicked: (String) -> Unit
 ) {
     val selectedMatchId = rememberSaveable { mutableStateOf("") }
+    val listState = rememberLazyListState()
+
+    val visibleItemRange by remember {
+        derivedStateOf {
+            val firstVisible = listState.layoutInfo.visibleItemsInfo.firstOrNull()?.index ?: 0
+            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            firstVisible..lastVisible
+        }
+    }
+
     if (didDropdownChange) {
         selectedMatchId.value = ""
     }
@@ -370,12 +384,14 @@ fun MatchList(
         }
     }
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(displayMatches) { match ->
-            MatchItem(match, selectedMatchId.value, matchDetailState, onMatchClicked = { id ->
+        itemsIndexed(displayMatches) { index, match ->
+            val isVisible = index in visibleItemRange
+            MatchItem(match, isVisible, selectedMatchId.value, matchDetailState, onMatchClicked = { id ->
                 if (id == selectedMatchId.value) {
                     //collapse re-clicked item
                     selectedMatchId.value = ""
@@ -392,6 +408,7 @@ fun MatchList(
 @Composable
 fun MatchItem(
     match: Match,
+    isVisible: Boolean,
     selectedMatchId: String,
     matchDetailState: MatchDetailUIState,
     onMatchClicked: (String) -> Unit
@@ -411,8 +428,10 @@ fun MatchItem(
         hoveredElevation = 6.dp
     )
 
+    val modifier = if (isVisible) Modifier.animateContentSize() else Modifier
+
     Card(
-        modifier = Modifier
+        modifier = modifier
             .animateContentSize()
             .fillMaxWidth()
             .padding(4.dp)
