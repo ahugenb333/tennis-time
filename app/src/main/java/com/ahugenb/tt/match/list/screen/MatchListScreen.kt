@@ -160,7 +160,6 @@ fun MatchListScreen() {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-
 @Composable
 fun DummyTopBar() {
     CenterAlignedTopAppBar(
@@ -171,6 +170,7 @@ fun DummyTopBar() {
         )
     )
 }
+
 @Composable
 fun TitleText() {
     Column(
@@ -216,6 +216,17 @@ fun MatchDropdownMenu(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column {
+            Text(
+                style = MaterialTheme.typography.bodyMedium,
+                text = currentSelection.label,
+                color = MaterialTheme.colorScheme.primary,
+
+                modifier = Modifier
+                    .wrapContentWidth(Alignment.End)
+                    .padding(16.dp)
+            )
+        }
+        Column {
             IconButton(
                 onClick = { dropdownExpanded = !dropdownExpanded },
                 modifier = Modifier
@@ -229,17 +240,6 @@ fun MatchDropdownMenu(
                     contentDescription = "Expand or collapse action bar"
                 )
             }
-        }
-        Column {
-            Text(
-                style = MaterialTheme.typography.bodyLarge,
-                text = currentSelection.label,
-                color = MaterialTheme.colorScheme.primary,
-
-                modifier = Modifier
-                    .wrapContentWidth(Alignment.End)
-                    .padding(16.dp)
-            )
         }
         DropdownMenu(
             expanded = dropdownExpanded,
@@ -563,7 +563,9 @@ fun CenteredProgressIndicator() {
             .padding(16.dp)
             .fillMaxWidth()
     ) {
-        CircularProgressIndicator()
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.secondary
+        )
     }
 }
 
@@ -638,7 +640,7 @@ fun StatisticRow(label: String, playerOneValue: String?, playerTwoValue: String?
 }
 
 private fun formatSets(sets: List<SetScore>): String {
-     val result = sets.joinToString {
+    val result = sets.joinToString {
         if (it.wentToTieBreak) {
             val homePlayerWon = it.gamesHomePlayer > it.gamesAwayPlayer
             if (homePlayerWon) {
