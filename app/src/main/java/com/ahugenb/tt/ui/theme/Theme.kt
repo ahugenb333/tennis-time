@@ -13,26 +13,26 @@ import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
 private val AustralianOpenTheme = lightColorScheme(
-    primary = AOBlue,
+    primary = AOWhite,
     onPrimary = Color.White,
-    secondary = AOWhite,
-    onSecondary = AOBlue,
-    background = AOWhite,
-    onBackground = AOBlue,
+    secondary = AOBlue,
+    onSecondary = AOWhite,
+    background = AOBlue,
+    onBackground = AOWhite,
     surface = AOWhite,
     onSurface = AOBlue
     // Add other colors if necessary
 )
 
 private val FrenchOpenTheme = darkColorScheme(
-    primary = FOOrange,
+    primary = FOGreen,
     onPrimary = Color.White,
-    secondary = FOGreen,
+    secondary = FOOrange,
     onSecondary = Color.White,
-    background = FOGreen,
-    onBackground = FOOrange,
-    surface = FOOrange,
-    onSurface = FOGreen
+    background = FOOrange,
+    onBackground = FOGreen,
+    surface = FOGreen,
+    onSurface = FOOrange
     // Add other colors if necessary
 )
 

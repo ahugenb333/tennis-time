@@ -189,6 +189,7 @@ fun MatchDropdownMenu(
         Text(
             style = MaterialTheme.typography.bodyLarge,
             text = currentSelection.label,
+            color = MaterialTheme.colorScheme.primary,
 
             modifier = Modifier
                 .wrapContentWidth(Alignment.End)
@@ -198,11 +199,18 @@ fun MatchDropdownMenu(
         DropdownMenu(
             expanded = dropdownExpanded,
             onDismissRequest = { dropdownExpanded = false },
-            modifier = Modifier.wrapContentWidth(Alignment.End)
+            modifier = Modifier
+                .wrapContentWidth(Alignment.End)
+                .background(color = MaterialTheme.colorScheme.primary)
         ) {
             dropdownList.forEach { option ->
                 DropdownMenuItem(
-                    text = { Text(option.label) },
+                    text = {
+                        Text(
+                            text = option.label,
+                            color = MaterialTheme.colorScheme.secondary
+                        )
+                    },
                     onClick = {
                         onDropdownOptionSelected(option)
                         dropdownExpanded = false
@@ -366,7 +374,7 @@ fun MatchItem(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp),
+                .padding(top = 16.dp, start = 16.dp, end = 16.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             Column(
@@ -496,7 +504,7 @@ fun MatchItem(
 
 @Composable
 fun ServeIndicator() {
-    val color = MaterialTheme.colorScheme.primary
+    val color = MaterialTheme.colorScheme.secondary
     Canvas(modifier = Modifier.size(10.dp)) {
         drawCircle(color = color)
     }
@@ -585,7 +593,7 @@ fun StatisticRow(label: String, playerOneValue: String?, playerTwoValue: String?
 }
 
 private fun formatSets(sets: List<SetScore>): String {
-    return sets.joinToString {
+     val result = sets.joinToString {
         if (it.wentToTieBreak) {
             val homePlayerWon = it.gamesHomePlayer > it.gamesAwayPlayer
             if (homePlayerWon) {
@@ -597,4 +605,8 @@ private fun formatSets(sets: List<SetScore>): String {
             "${it.gamesHomePlayer}-${it.gamesAwayPlayer}"
         }
     }
+    if (result.isEmpty() || result == " ") {
+        return "0-0"
+    }
+    return result
 }
