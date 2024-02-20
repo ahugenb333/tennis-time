@@ -3,6 +3,7 @@ package com.ahugenb.tt.match.list.screen
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,7 +14,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -114,6 +114,10 @@ fun MatchListScreen() {
                             )
                         },
                         scrollBehavior = scrollBehavior,
+                        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            scrolledContainerColor = MaterialTheme.colorScheme.secondary
+                        )
                     )
                 },
                 modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
@@ -154,14 +158,16 @@ fun TitleText() {
             Text(
                 textAlign = TextAlign.Center,
                 text = "Live Matches",
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary
             )
         }
         Row {
             Text(
                 textAlign = TextAlign.Center,
                 text = "(pull down to refresh)",
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary
             )
         }
     }
@@ -226,7 +232,11 @@ fun PullToRefreshContent(
     }
 
     Row {
-        Box(Modifier.nestedScroll(pullToRefreshState.nestedScrollConnection)) {
+        Box(
+            Modifier
+                .background(color = MaterialTheme.colorScheme.primary)
+                .nestedScroll(pullToRefreshState.nestedScrollConnection)
+        ) {
             when (matchListState) {
                 is MatchListUIState.Empty -> {
                     EmptyState()
@@ -246,7 +256,6 @@ fun PullToRefreshContent(
             }
             PullToRefreshContainer(
                 modifier = Modifier
-                    .offset(y = (-50).dp)
                     .align(Alignment.TopCenter)
                     .nestedScroll(pullToRefreshState.nestedScrollConnection),
                 state = pullToRefreshState
@@ -305,7 +314,7 @@ fun MatchList(
         }
     }
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
