@@ -63,6 +63,7 @@ import com.ahugenb.tt.match.list.model.domain.Match
 import com.ahugenb.tt.match.list.model.domain.ServingState
 import com.ahugenb.tt.match.list.model.domain.SetScore
 import com.ahugenb.tt.match.list.model.response.Statistic
+import com.ahugenb.tt.match.list.model.response.hasAnyNonNullProperty
 
 enum class DropdownOption(val label: String) {
     ALL("All"),
@@ -573,7 +574,7 @@ fun CenteredProgressIndicator() {
 
 @Composable
 fun MatchStatistics(statistic: Statistic?) {
-    if (statistic != null) {
+    if (statistic != null && statistic.hasAnyNonNullProperty()) {
         Spacer(modifier = Modifier.height(8.dp))
         Box(
             modifier = Modifier

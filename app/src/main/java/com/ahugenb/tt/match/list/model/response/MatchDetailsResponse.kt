@@ -52,3 +52,19 @@ data class Statistic(
     @SerializedName("P2 Total won") val p2TotalWon: String?,
     @SerializedName("P2 name") val p2Name: String?
 )
+
+//handles edge case where the Statistic exists but all the values are null (during coin toss sometimes)
+fun Statistic.hasAnyNonNullProperty(): Boolean {
+    return listOf(
+        p1Aces, p1BreakPointsConverted, p1BreakPointsSaved, p1DoubleFaults, p1FirstServe,
+        p1FirstServePoints, p1FirstServeReturnPoints, p1MaxGamesInARow, p1MaxPointsInARow,
+        p1ReceiverPointsWon, p1ReturnGamesPlayed, p1SecondServe, p1SecondServePoints,
+        p1SecondServeReturnPoints, p1ServiceGamesPlayed, p1ServiceGamesWon, p1ServicePointsWon,
+        p1Tiebreaks, p1Total, p1TotalWon, p1Name, p2Aces, p2BreakPointsConverted,
+        p2BreakPointsSaved, p2DoubleFaults, p2FirstServe, p2FirstServePoints,
+        p2FirstServeReturnPoints, p2MaxGamesInARow, p2MaxPointsInARow, p2ReceiverPointsWon,
+        p2ReturnGamesPlayed, p2SecondServe, p2SecondServePoints, p2SecondServeReturnPoints,
+        p2ServiceGamesPlayed, p2ServiceGamesWon, p2ServicePointsWon, p2Tiebreaks, p2Total,
+        p2TotalWon, p2Name
+    ).any { it != null }
+}
