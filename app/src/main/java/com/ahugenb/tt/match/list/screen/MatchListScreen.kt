@@ -590,7 +590,7 @@ fun MatchStatistics(statistic: Statistic?) {
                     "Double faults" to (statistic.p1DoubleFaults to statistic.p2DoubleFaults),
                     "First serve return points" to (statistic.p1FirstServeReturnPoints to statistic.p2FirstServeReturnPoints),
                     "Max points in a row" to (statistic.p1MaxPointsInARow to statistic.p2MaxPointsInARow),
-                    "Receiver points won" to (statistic.p1ReceiverPointsWon to statistic.p2ReceiverPointsWon),
+                    "Return points won" to (statistic.p1ReceiverPointsWon to statistic.p2ReceiverPointsWon),
                     "Return games played" to (statistic.p1ReturnGamesPlayed to statistic.p2ReturnGamesPlayed),
                     "Second serve return points" to (statistic.p1SecondServeReturnPoints to statistic.p2SecondServeReturnPoints),
                     "Service games played" to (statistic.p1ServiceGamesPlayed to statistic.p2ServiceGamesPlayed),
