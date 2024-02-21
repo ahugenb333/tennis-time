@@ -428,6 +428,9 @@ fun MatchItem(
         hoveredElevation = 6.dp
     )
 
+    //this is used for 2 reasons:
+    // 1 - on the last item the animation rendering will stall the down scroll before reaching the bottom
+    // 2 - on items that can be scrolled off the top they will re-animate their statistics when being scrolled in
     val modifier = if (isVisible) Modifier.animateContentSize() else Modifier
 
     Card(
