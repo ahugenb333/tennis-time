@@ -432,7 +432,6 @@ fun MatchItem(
 
     Card(
         modifier = modifier
-            .animateContentSize()
             .fillMaxWidth()
             .padding(4.dp)
             .clickable { onMatchClicked(match.id) },
