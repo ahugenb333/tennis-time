@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ahugenb.tt.common.BouncingBallLoader
+import com.ahugenb.tt.common.DummyTopBar
 import com.ahugenb.tt.match.MatchDetailUIState
 import com.ahugenb.tt.match.MatchListUIState
 import com.ahugenb.tt.match.MatchViewModel
@@ -102,7 +103,7 @@ fun MatchListScreen() {
     when (matchListState) {
         is MatchListUIState.Loading -> {
             Scaffold(
-                topBar = { DummyTopBar() }
+                topBar = { DummyTopBar(title = { TitleText() }) }
             ) { innerPadding ->
                 Column(
                     modifier = Modifier
@@ -166,18 +167,6 @@ fun MatchListScreen() {
             )
         }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun DummyTopBar() {
-    CenterAlignedTopAppBar(
-        title = { TitleText() },
-        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.secondary,
-            scrolledContainerColor = MaterialTheme.colorScheme.secondary
-        )
-    )
 }
 
 @Composable
