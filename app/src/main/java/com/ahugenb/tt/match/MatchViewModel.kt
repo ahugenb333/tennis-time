@@ -68,6 +68,14 @@ class MatchViewModel @Inject constructor(
     }
 
     fun fetchMatchDetails(matchId: String) {
+        //switch to populated if we already loaded this match's statistic
+        val match = (_matchListUIState.value as? MatchListUIState.All)?.matches?.firstOrNull {
+            it.id == matchId && it.statistic != null
+        }
+        if (match != null) {
+            _matchDetailUIState.value = MatchDetailUIState.Populated
+            return
+        }
         _matchDetailUIState.value = MatchDetailUIState.Loading
         viewModelScope.launch {
             repository.fetchMatchDetails(matchId)
