@@ -115,12 +115,16 @@ fun MatchListScreen() {
         }
 
         is MatchListUIState.All -> {
+            val countAll = matchListState.matches.size
+            val countSingles = matchListState.matches.count { !it.isDoubles }
+            val countDoubles = countAll - countSingles
             Scaffold(
                 topBar = {
                     CenterAlignedTopAppBar(
                         title = { TitleText() },
                         actions = {
                             MatchDropdownMenu(
+                                listOf(countAll, countSingles, countDoubles),
                                 currentSelection = dropdownSelection.value,
                                 onDropdownOptionSelected = { selected ->
                                     didDropdownChange.value = dropdownSelection.value != selected
@@ -202,6 +206,7 @@ fun TitleText() {
 
 @Composable
 fun MatchDropdownMenu(
+    counts: List<Int>,
     currentSelection: DropdownOption,
     onDropdownOptionSelected: (DropdownOption) -> Unit
 ) {
@@ -253,11 +258,11 @@ fun MatchDropdownMenu(
                 .wrapContentWidth(Alignment.End)
                 .background(color = MaterialTheme.colorScheme.primary)
         ) {
-            dropdownList.forEach { option ->
+            dropdownList.forEachIndexed { index, option ->
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = option.label,
+                            text = "${option.label} (${counts[index]})",
                             color = MaterialTheme.colorScheme.secondary
                         )
                     },
