@@ -1,7 +1,7 @@
-package com.ahugenb.tt.api.modules
+package com.ahugenb.tt.api.matches.modules
 
-import com.ahugenb.tt.api.ApiHeaderInterceptor
-import com.ahugenb.tt.api.TennisApiService
+import com.ahugenb.tt.api.matches.MatchesApiService
+import com.ahugenb.tt.api.matches.MatchesHeaderInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -14,7 +14,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object NetworkModule {
+object MatchesNetworkModule {
 
     @Provides
     @Singleton
@@ -25,7 +25,7 @@ object NetworkModule {
 
         return OkHttpClient.Builder()
             .addInterceptor(logging)
-            .addInterceptor(ApiHeaderInterceptor())
+            .addInterceptor(MatchesHeaderInterceptor())
             .build()
     }
 
@@ -40,6 +40,6 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideTennisApiService(retrofit: Retrofit): TennisApiService =
-        retrofit.create(TennisApiService::class.java)
+    fun provideApiService(retrofit: Retrofit): MatchesApiService =
+        retrofit.create(MatchesApiService::class.java)
 }

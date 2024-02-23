@@ -1,14 +1,14 @@
-package com.ahugenb.tt.api
+package com.ahugenb.tt.api.matches
 
 import android.util.Log
-import com.ahugenb.tt.match.list.model.response.Statistic
 import com.ahugenb.tt.match.list.model.MatchListUtils.Companion.toDomainMatch
 import com.ahugenb.tt.match.list.model.domain.Match
+import com.ahugenb.tt.match.list.model.response.Statistic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 
-class TennisRepository(private val apiService: TennisApiService) {
+class MatchesRepository(private val apiService: MatchesApiService) {
 
     fun fetchMatches(): Flow<List<Match>> = flow {
         try {
@@ -17,7 +17,7 @@ class TennisRepository(private val apiService: TennisApiService) {
             }
             emit(response)
         } catch(e: Exception) {
-            Log.e("TennisRepository::fetchMatches", e.toString())
+            Log.e("MatchesRepository::fetchMatches", e.toString())
             emit(emptyList())
         }
     }
@@ -27,7 +27,7 @@ class TennisRepository(private val apiService: TennisApiService) {
             val response = apiService.getMatchDetails(matchId).statistics
             emit(response)
         } catch(e: Exception) {
-            Log.e("TennisRepository::fetchMatchDetails", e.toString())
+            Log.e("MatchesRepository::fetchMatchDetails", e.toString())
             emit(emptyList())
         }
     }

@@ -3,7 +3,7 @@ package com.ahugenb.tt.match
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ahugenb.tt.api.TennisRepository
+import com.ahugenb.tt.api.matches.MatchesRepository
 import com.ahugenb.tt.match.list.model.domain.Match
 import com.ahugenb.tt.match.list.model.response.Statistic
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,7 +34,7 @@ sealed class MatchDetailUIState {
 
 @HiltViewModel
 class MatchViewModel @Inject constructor(
-    private val repository: TennisRepository
+    private val repository: MatchesRepository
 ) : ViewModel() {
 
     private val _matchListUIState = MutableStateFlow<MatchListUIState>(MatchListUIState.Empty)
