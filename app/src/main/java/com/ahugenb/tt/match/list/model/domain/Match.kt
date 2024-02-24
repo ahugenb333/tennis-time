@@ -12,7 +12,7 @@ data class Match(
     val homeScore: String,
     val awayScore: String,
     val surface: String,
-    val tournament: Tournament,
+    val tournament: MatchTournament,
     val liveHomeOdd: String,
     val liveAwayOdd: String,
     val initialHomeOdd: String,
@@ -28,7 +28,7 @@ data class SetScore(
     val totalTieBreakPoints: Int?
 )
 
-data class Tournament(
+data class MatchTournament(
     val name: String,
     val round: String
 )

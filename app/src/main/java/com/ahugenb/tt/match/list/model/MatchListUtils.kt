@@ -1,9 +1,9 @@
 package com.ahugenb.tt.match.list.model
 
 import com.ahugenb.tt.match.list.model.domain.Match
+import com.ahugenb.tt.match.list.model.domain.MatchTournament
 import com.ahugenb.tt.match.list.model.domain.ServingState
 import com.ahugenb.tt.match.list.model.domain.SetScore
-import com.ahugenb.tt.match.list.model.domain.Tournament
 import com.ahugenb.tt.match.list.model.response.MatchResponse
 import kotlin.math.roundToInt
 
@@ -76,13 +76,13 @@ class MatchListUtils {
             return this.replace(" / ", "\n")
         }
 
-        private fun parseTournament(tournament: String, round: String): Tournament {
+        private fun parseTournament(tournament: String, round: String): MatchTournament {
             var updatedRound = round
             if (tournament.contains("Qualifying")) {
                 updatedRound = "Qualifying"
             }
 
-            return Tournament(
+            return MatchTournament(
                 name = formatTournamentName(tournament.replace("Qualifying", "")),
                 round = updatedRound
             )

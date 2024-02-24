@@ -14,6 +14,6 @@ object MatchesRepositoryModule {
 
     @Provides
     @Singleton
-    fun provideMatchesRepository(apiService: MatchesApiService): MatchesRepository =
-        MatchesRepository(apiService)
+    fun provideMatchesRepository(matchesApiService: MatchesApiService): MatchesRepository =
+        MatchesRepository(matchesApiService)
 }  

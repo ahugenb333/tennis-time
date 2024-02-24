@@ -1,7 +1,7 @@
-package com.ahugenb.tt.api.matches.modules
+package com.ahugenb.tt.api.tennis.modules
 
-import com.ahugenb.tt.api.matches.MatchesApiService
-import com.ahugenb.tt.api.matches.MatchesHeaderInterceptor
+import com.ahugenb.tt.api.tennis.TennisApiService
+import com.ahugenb.tt.api.tennis.TennisHeaderInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,34 +15,34 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object MatchesNetworkModule {
+object TennisNetworkModule {
 
     @Provides
     @Singleton
-    @Named("MatchesOkHttpClient")
-    fun provideMatchesOkHttpClient(): OkHttpClient {
+    @Named("TennisOkHttpClient")
+    fun provideTennisOkHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 
         return OkHttpClient.Builder()
             .addInterceptor(logging)
-            .addInterceptor(MatchesHeaderInterceptor())
+            .addInterceptor(TennisHeaderInterceptor())
             .build()
     }
 
     @Provides
     @Singleton
-    @Named("MatchesRetrofit")
-    fun provideMatchesRetrofit(@Named("MatchesOkHttpClient") matchesOkHttpClient: OkHttpClient): Retrofit =
+    @Named("TennisRetrofit")
+    fun provideTennisRetrofit(@Named("TennisOkHttpClient") tennisOkHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://zylalabs.com/api/961/live+tennis+api/")
+            .baseUrl("https://ultimate-tennis1.p.rapidapi.com/")
             .addConverterFactory(GsonConverterFactory.create())
-            .client(matchesOkHttpClient)
+            .client(tennisOkHttpClient)
             .build()
 
     @Provides
     @Singleton
-    fun provideMatchesApiService(@Named("MatchesRetrofit") matchesRetrofit: Retrofit): MatchesApiService =
-        matchesRetrofit.create(MatchesApiService::class.java)
+    fun provideTennisApiService(@Named("TennisRetrofit") tennisRetrofit: Retrofit): TennisApiService =
+        tennisRetrofit.create(TennisApiService::class.java)
 }

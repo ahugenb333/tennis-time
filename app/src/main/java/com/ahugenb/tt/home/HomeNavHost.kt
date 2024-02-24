@@ -13,13 +13,14 @@ import com.ahugenb.tt.home.NavRoutes.MATCH_LIST
 import com.ahugenb.tt.home.NavRoutes.TOURNAMENTS
 import com.ahugenb.tt.home.NavRoutes.WTA_RANKINGS
 import com.ahugenb.tt.match.list.screen.MatchListScreen
+import com.ahugenb.tt.tournament.TournamentScreen
 
 
 @Composable
 fun HomeNavHost(navController: NavHostController) {
     NavHost(navController = navController, startDestination = MATCH_LIST) {
         composable(HIGHLIGHTED_PLAYER) { Text(stringResource(R.string.tab_highlighted_player)) }
-        composable(TOURNAMENTS) { Text(stringResource(R.string.tab_tournaments)) }
+        composable(TOURNAMENTS) { TournamentScreen() }
         composable(MATCH_LIST) { MatchListScreen() }
         composable(ATP_RANKINGS) { Text(stringResource(R.string.tab_atp_rankings)) }
         composable(WTA_RANKINGS) { Text(stringResource(R.string.tab_wta_rankings)) }
