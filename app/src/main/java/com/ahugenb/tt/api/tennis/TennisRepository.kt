@@ -1,30 +1,31 @@
 package com.ahugenb.tt.api.tennis
 
 import android.util.Log
-import com.ahugenb.tt.tournament.Tour
-import com.ahugenb.tt.tournament.model.Tournament
+import com.ahugenb.tt.tournament.model.AtpTournament
+import com.ahugenb.tt.tournament.model.WtaTournament
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class TennisRepository(private val apiService: TennisApiService) {
 
-    fun fetchTournaments(tour: Tour, year: Int, category: Category = Category.NONE): Flow<List<Tournament>> = flow {
+    fun fetchAtpTournaments(year: Int, category: Category): Flow<List<AtpTournament>> = flow {
         try {
-            val result = mutableListOf<Tournament>()
-            result.addAll(
-                when (tour) {
-                    Tour.ATP -> {
-                        apiService.getAtpTournamentList(year, category.path).tournaments
-                    }
+            val result = apiService.getAtpTournamentList(year, category.path).tournaments
 
-                    Tour.WTA -> {
-                        apiService.getWtaTournamentList(year).tournaments
-                    }
-                }
-            )
             emit(result)
         } catch (e: Exception) {
-            Log.e("TennisRepository::fetchTournaments", e.toString())
+            Log.e("TennisRepository::fetchAtpTournaments", e.toString())
+            emit(emptyList())
+        }
+    }
+
+    fun fetchWtaTournaments(year: Int): Flow<List<WtaTournament>> = flow {
+        try {
+            val result = apiService.getWtaTournamentList(year).tournaments
+
+            emit(result)
+        } catch (e: Exception) {
+            Log.e("TennisRepository::fetchAtpTournaments", e.toString())
             emit(emptyList())
         }
     }

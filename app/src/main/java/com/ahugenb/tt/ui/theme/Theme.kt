@@ -14,7 +14,7 @@ import androidx.core.view.WindowCompat
 
 private val AustralianOpenTheme = lightColorScheme(
     primary = AOWhite,
-    onPrimary = Color.White,
+    onPrimary = Color.Black,
     secondary = AOBlue,
     onSecondary = AOWhite,
     background = AOBlue,
@@ -32,7 +32,7 @@ private val FrenchOpenTheme = darkColorScheme(
     background = FOOrange,
     onBackground = FOGreen,
     surface = FOGreen,
-    onSurface = FOOrange
+    onSurface = FOOrange,
     // Add other colors if necessary
 )
 

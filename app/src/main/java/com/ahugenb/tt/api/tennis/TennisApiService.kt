@@ -1,6 +1,7 @@
 package com.ahugenb.tt.api.tennis
 
-import com.ahugenb.tt.tournament.model.TournamentsResponse
+import com.ahugenb.tt.tournament.model.AtpTournamentsResponse
+import com.ahugenb.tt.tournament.model.WtaTournamentsReponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -15,9 +16,9 @@ enum class Category(val path: String) {
 interface TennisApiService {
 
     @GET("tournament_list/atp/{year}/{category}")
-    suspend fun getAtpTournamentList(@Path("year") year: Int, @Path("category") category: String): TournamentsResponse
+    suspend fun getAtpTournamentList(@Path("year") year: Int, @Path("category") category: String): AtpTournamentsResponse
 
     @GET("tournament_list/wta/{year}")
-    suspend fun getWtaTournamentList(@Path("year") year: Int): TournamentsResponse
+    suspend fun getWtaTournamentList(@Path("year") year: Int): WtaTournamentsReponse
 
 }

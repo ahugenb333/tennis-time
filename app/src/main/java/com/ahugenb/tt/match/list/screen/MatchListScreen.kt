@@ -629,7 +629,6 @@ fun MatchStatistics(statistic: Statistic?) {
                         StatisticRow(label, values.first, values.second)
                     }
                 }
-
             }
         }
         Spacer(modifier = Modifier.height(8.dp))

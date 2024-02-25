@@ -5,7 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ahugenb.tt.api.tennis.Category
 import com.ahugenb.tt.api.tennis.TennisRepository
-import com.ahugenb.tt.tournament.model.Tournament
+import com.ahugenb.tt.tournament.model.AtpTournament
+import com.ahugenb.tt.tournament.model.WtaTournament
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,7 +27,9 @@ sealed class TournamentListUIState {
 
     data object Loading : TournamentListUIState()
 
-    data class All(val tournaments: List<Tournament>) : TournamentListUIState()
+    data class Atp(val tournaments: List<AtpTournament>) : TournamentListUIState()
+
+    data class Wta(val tournaments: List<WtaTournament>) : TournamentListUIState()
 }
 @HiltViewModel
 class TournamentViewModel @Inject constructor(
@@ -37,24 +40,40 @@ class TournamentViewModel @Inject constructor(
     val tournamentListUIState: StateFlow<TournamentListUIState> = _tournamentListUIState
 
     init {
-        fetchTournaments()
+        fetchWtaTournaments()
     }
 
-    private fun fetchTournaments(
-        tour: Tour = Tour.ATP,
+    private fun fetchAtpTournaments(
         year: Int = 2024,
         category: Category = Category.ATPGS
     ) {
         _tournamentListUIState.value = TournamentListUIState.Loading
         viewModelScope.launch {
-            repository.fetchTournaments(tour, year, category)
+            repository.fetchAtpTournaments(year, category)
                 .flowOn(Dispatchers.IO)
                 .catch { e ->
                     Log.e("TournamentViewModel::fetchTournaments", e.toString())
                     emit(emptyList())
                 }
                 .collect { result ->
-                    _tournamentListUIState.value = TournamentListUIState.All(result)
+                    _tournamentListUIState.value = TournamentListUIState.Atp(result)
+                }
+        }
+    }
+
+    private fun fetchWtaTournaments(
+        year: Int = 2024,
+    ) {
+        _tournamentListUIState.value = TournamentListUIState.Loading
+        viewModelScope.launch {
+            repository.fetchWtaTournaments(year)
+                .flowOn(Dispatchers.IO)
+                .catch { e ->
+                    Log.e("TournamentViewModel::fetchWtaTournaments", e.toString())
+                    emit(emptyList())
+                }
+                .collect { result ->
+                    _tournamentListUIState.value = TournamentListUIState.Wta(result)
                 }
         }
     }
