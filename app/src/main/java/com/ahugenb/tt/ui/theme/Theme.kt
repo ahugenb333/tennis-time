@@ -12,54 +12,53 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-private val FOColorScheme = darkColorScheme(
-    primary = FOOrange,
-    secondary = FOGreen,
-    tertiary = Color.White,
-    surface = FOOrange
-
-)
-
-private val AOColorScheme = lightColorScheme(
-    primary = AOBlue,
-    secondary = AOWhite,
-    tertiary = Color.Black,
-    surface = AOBlue
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
+private val AustralianOpenTheme = lightColorScheme(
+    primary = AOWhite,
     onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    secondary = AOBlue,
+    onSecondary = AOWhite,
+    background = AOBlue,
+    onBackground = AOWhite,
+    surface = AOWhite,
+    onSurface = AOBlue
+    // Add other colors if necessary
 )
+
+private val FrenchOpenTheme = darkColorScheme(
+    primary = FOGreen,
+    onPrimary = Color.White,
+    secondary = FOOrange,
+    onSecondary = Color.White,
+    background = FOOrange,
+    onBackground = FOGreen,
+    surface = FOGreen,
+    onSurface = FOOrange
+    // Add other colors if necessary
+)
+
 
 @Composable
 fun TennisTimeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(), // todo use slam calendar for this
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
-        darkTheme -> FOColorScheme
-        else -> AOColorScheme
+        darkTheme -> FrenchOpenTheme
+        else -> AustralianOpenTheme
     }
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
-            window.statusBarColor = colorScheme.primary.toArgb()
+            window.statusBarColor = colorScheme.secondary.toArgb()
             WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars = darkTheme
         }
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = TennisTypography,
         content = content
     )
 }

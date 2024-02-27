@@ -1,16 +1,15 @@
 package com.ahugenb.tt.api
 
-import com.ahugenb.tt.match.list.response.MatchResponseWrapper
+import com.ahugenb.tt.match.list.model.response.MatchDetailsResponse
+import com.ahugenb.tt.match.list.model.response.MatchListResponse
 import retrofit2.http.GET
-import retrofit2.http.Headers
+import retrofit2.http.Query
 
 interface TennisApiService {
-    @Headers(
-        "X-RapidAPI-Key:YOUR_API_KEY",
-        "X-RapidAPI-Host: ultimate-tennis1.p.rapidapi.com"
-    )
-    @GET("live_scores")
-    suspend fun getLiveScores(): MatchResponseWrapper
 
+    @GET("786/fetch+live+tennis+matches")
+    suspend fun getLiveScores(): MatchListResponse
 
+    @GET("787/fetch+tennis+match+statistics")
+    suspend fun getMatchDetails(@Query(value = "match_id") matchId: String): MatchDetailsResponse
 }
